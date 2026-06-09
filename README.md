@@ -1,6 +1,6 @@
 <div align="center">
 
-#     🚀 PROGRAMADORES LUNAREZ 🌖
+#     🚀 PROGRAMADORES LUNARES 🌖
 ##   Artemis II Mission Simulator
 
 <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&size=30&duration=3000&pause=1000&color=00D9FF&center=true&vCenter=true&width=900&lines=NASA+Mission+Simulation;Orekit+Orbital+Propagation;LEO+Trajectory+System;Flight+Dynamics+Software" />
