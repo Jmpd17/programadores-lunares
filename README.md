@@ -26,16 +26,15 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 
 # 👨‍🚀 TRIPULACIÓN |ROL|
 
-| Osvaldo Rafael Díaz Castro |CDR|
-
-| Emmanuel Jesús Suriel Minaya |REQ|
-
-| Franklin Isaac Serrano Rodríguez |ARCH|
-
 | Jesús Polanco  |FDO|
 
-| John Mario Ventura Contreras |CAPCOM|
+| John Ventura |CAPCOM|
 
+|  Isaac Serrano |ARCH|
+
+| Osvaldo  Díaz  |CAPCOM|
+
+| Emmanuel  Suriel |REQ|
 
 #  Objetivos Iniciales
 
@@ -44,8 +43,6 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 ✅ Verificar la cadena de herramientas  
 ✅ Documentar riesgos técnicos  
 ✅ Preparar arquitectura inicial del simulador  
-
----
 
 #  💻Tecnologías Utilizadas
 
