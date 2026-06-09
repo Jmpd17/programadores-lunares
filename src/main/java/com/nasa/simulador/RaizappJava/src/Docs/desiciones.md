@@ -7,8 +7,8 @@ Se decidió utilizar Orekit como biblioteca principal para cálculos orbitales d
 ---
 
 ## Simulación Inicial LEO
-
-Como primera validación técnica se seleccionó una órbita terrestre baja (LEO), ya que permite comprobar el funcionamiento de la cadena de herramientas antes de avanzar hacia simulaciones más complejas relacionadas con Artemis II.
+c
+Como primera validación técnica se seleccionó una órbita terrestre baja (LEO), ya que permite comprobar el funcionamiento de la cadena de herramientas antes de avanzar hacia simulaciones más complejas relacionadas con Artemis II....
 
 ---
 
