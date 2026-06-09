@@ -49,9 +49,13 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 | Tecnología | Uso |
 
 | Java 17 | Desarrollo principal |
+
 | Orekit | Dinámica orbital |
+
 | Maven | Gestión de dependencias |
+
 | GitHub | Control de versiones |
+
 | JetBrain | Entorno de desarrollo |
 
 
