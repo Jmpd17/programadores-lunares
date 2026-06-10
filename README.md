@@ -164,4 +164,6 @@ Especifica los archivos y directorios que Git debe ignorar durante el control de
 
 Archivo de configuración generado por IntelliJ IDEA para el proyecto.
 
+---
 
+Cuando vas usar commit y le push tiene que modificar el codigo... y dejar comentario de que fue lo que hiciste y se va areflejar pero es que es complicaod explicarte desdes aqui pero tiene que tener el codigo... para modficarlo y hacer el commit y le push... esto yo lo hice en el codigo
