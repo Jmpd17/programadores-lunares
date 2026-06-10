@@ -164,6 +164,4 @@ Especifica los archivos y directorios que Git debe ignorar durante el control de
 
 Archivo de configuración generado por IntelliJ IDEA para el proyecto.
 
-```
-```
-q
+
