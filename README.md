@@ -61,25 +61,109 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 
 #  🗂️ Estructura del Proyecto
 
-```plaintext
-Simulador-Mision-Lunar/
+# 2. Estructura del Proyecto
+
+```text
+PROGRAMADORES-LUNARES/
+│
+├── .gradle/
+│   ├── 8.9/
+│   ├── 8.14/
+│   ├── 9.2.0/
+│   ├── buildOutputCleanup/
+│   ├── nb-cache/
+│   └── vcs-1/
+│
+├── .idea/
+│   ├── compiler.xml
+│   ├── jarRepositories.xml
+│   └── misc.xml
+│
+├── .vscode/
+│   └── settings.json
 │
 ├── src/
-│   └── main/
-│       └── java/
-│           └── com/
-│               └── nasa/
-│                   └── simulador/
+│   │
+│   ├── Docs/
+│   │
+│   ├── LEOSimulation.java
+│   ├── Main.java
+│   └── OrekitConfig.java
 │
-│                       ├── Main.java
-│                       ├── OrekitConfig.java
-│                       ├── LEOSimulation.java
-│                       └── RiskReport.java
+├── target/
+│   └── classes/
+│       └── com/
+│           └── nasa/
+│               └── simulador/
 │
-├── orekit-data/
-│
-├── docs/
-│   └── riesgos.md
-│
-├── README.md
+├── .gitignore
+├── build.gradle
+├── Git.html
 ├── pom.xml
+├── README.md
+└── RaizappJava.iml
+```
+
+## Descripción General
+
+La estructura del proyecto se encuentra organizada en directorios de configuración, código fuente, documentación y archivos de construcción.
+
+### .gradle/
+
+Contiene archivos generados automáticamente por Gradle para la gestión de dependencias y compilación del proyecto.
+
+### .idea/
+
+Incluye archivos de configuración utilizados por IntelliJ IDEA.
+
+### .vscode/
+
+Contiene configuraciones específicas utilizadas por Visual Studio Code.
+
+### src/
+
+Directorio principal donde se encuentra el código fuente y documentación desarrollada por el equipo.
+
+#### Main.java
+
+Punto de entrada del simulador. Coordina la ejecución general del sistema.
+
+#### OrekitConfig.java
+
+Configura e inicializa la biblioteca Orekit para permitir la ejecución de simulaciones orbitales.
+
+#### LEOSimulation.java
+
+Implementa la lógica de propagación orbital y simulación de órbitas terrestres bajas (LEO).
+
+#### Docs/
+
+Contiene la documentación técnica generada durante el desarrollo del proyecto.
+
+### target/
+
+Directorio generado automáticamente durante la compilación. Contiene los archivos ejecutables (.class) producidos por Java.
+
+### pom.xml
+
+Archivo de configuración de Maven utilizado para administrar dependencias y automatizar la construcción del proyecto.
+
+### build.gradle
+
+Archivo de configuración de Gradle utilizado para tareas de compilación y gestión de dependencias.
+
+### README.md
+
+Documento principal del repositorio que describe el proyecto, objetivos y estructura general.
+
+### .gitignore
+
+Especifica los archivos y directorios que Git debe ignorar durante el control de versiones.
+
+### RaizappJava.iml
+
+Archivo de configuración generado por IntelliJ IDEA para el proyecto.
+
+```
+```
+q
