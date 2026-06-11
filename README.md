@@ -61,8 +61,6 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 
 #  🗂️ Estructura del Proyecto
 
-# Estructura del Proyecto
-
 ```text
 PROGRAMADORES-LUNARES/
 │
