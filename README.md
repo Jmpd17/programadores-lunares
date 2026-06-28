@@ -26,15 +26,15 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 
 # 👨‍🚀 TRIPULACIÓN |ROL|
 
-| Jesús Polanco  |FDO|
+| Enmanuel Suriel  |CDR|
 
-| John Ventura |CAPCOM|
+| Jesus Polanco |FDO|
 
-|  Isaac Serrano |ARCH|
+| Franklin Isaac Serrano |ARCH|
 
-| Osvaldo  Díaz  |CAPCOM|
+| John Mario Ventura  |CAPCOM|
 
-| Emmanuel  Suriel |REQ|
+| Osvaldo Diaz |REQ|
 
 #  Objetivos Iniciales
 
