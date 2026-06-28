@@ -65,8 +65,6 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 PROGRAMADORES-LUNARES/
 │
 ├── .gradle/
-│   ├── 8.9/
-│   ├── 8.14/
 │   ├── 9.2.0/
 │   ├── buildOutputCleanup/
 │   ├── nb-cache/
@@ -83,10 +81,18 @@ PROGRAMADORES-LUNARES/
 ├── src/
 │   │
 │   ├── Docs/
+│   │   ├── ArquitecturaSimulacion.md
+│   │   ├── ArquitecturaSistemas.md
+│   │   ├── decisiones.md
+│   │   ├── RequisitosTecnicos.md
+│   │   ├── Riesgos.md
+│   │   ├── SimulacionTecnica.md
+│   │   ├── VistaLogica.md
+│   │   └── VistaProcesos.md
 │   │
-│   ├── LEOSimulation.java
 │   ├── Main.java
-│   └── OrekitConfig.java
+│   ├── OrekitConfig.java
+│   └── LEOSimulation.java
 │
 ├── target/
 │   └── classes/
