@@ -55,27 +55,52 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 - 🧠 IntelliJ IDEA
 - 📋 Trello
 
-
 # 🗂️ Estructura del Proyecto
 
 ```text
-programadores-lunares/
+PROGRAMADORES-LUNARES/
+│
+├── .gradle/
+│   ├── 9.2.0/
+│   ├── buildOutputCleanup/
+│   ├── nb-cache/
+│   └── vcs-1/
+│
+├── .idea/
+│   ├── compiler.xml
+│   ├── jarRepositories.xml
+│   └── misc.xml
+│
+├── .vscode/
+│   └── settings.json
 │
 ├── src/
+│   ├── Docs/
+│   │   ├── ArquitecturaSimulacion.md
+│   │   ├── ArquitecturaSistemas.md
+│   │   ├── decisiones.md
+│   │   ├── RequisitosTecnicos.md
+│   │   ├── Riesgos.md
+│   │   ├── SimulacionTecnica.md
+│   │   ├── VistaLogica.md
+│   │   └── VistaProcesos.md
+│   │
 │   ├── Main.java
 │   ├── OrekitConfig.java
-│   ├── LEOSimulation.java
-│   └── RiskReport.java
+│   └── LEOSimulation.java
 │
-├── orekit-data/
+├── target/
+│   └── classes/
+│       └── com/
+│           └── nasa/
+│               └── simulador/
 │
-├── docs/
-│
+├── .gitignore
+├── build.gradle
+├── Git.html
 ├── pom.xml
-│
 ├── README.md
-│
-└── decisiones.md
+└── RaizappJava.iml
 ```
 
 ## Descripción General
