@@ -59,6 +59,7 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 # 🗂️ Estructura del Proyecto
 
 programadores-lunares/
+
 │
 ├── src/
 │   ├── Main.java
@@ -75,7 +76,7 @@ programadores-lunares/
 ├── README.md
 │
 └── decisiones.md
-```
+
 
 ## Descripción General
 
