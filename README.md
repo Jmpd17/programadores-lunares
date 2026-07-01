@@ -58,19 +58,14 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 
 # 🗂️ Estructura del Proyecto
 
+```text
 programadores-lunares/
-
 │
 ├── src/
-
 │   ├── Main.java
-
 │   ├── OrekitConfig.java
-
 │   ├── LEOSimulation.java
-
 │   └── RiskReport.java
-
 │
 ├── orekit-data/
 │
@@ -81,7 +76,7 @@ programadores-lunares/
 ├── README.md
 │
 └── decisiones.md
-
+```
 
 ## Descripción General
 
