@@ -44,129 +44,91 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 ✅ Documentar riesgos técnicos  
 ✅ Preparar arquitectura inicial del simulador  
 
-#  💻Tecnologías Utilizadas
+💻 Tecnologías utilizadas
 
-| Tecnología | Uso |
-
-| Java 17 | Desarrollo principal |
-
-| Orekit | Dinámica orbital |
-
-| Maven | Gestión de dependencias |
-
-| GitHub | Control de versiones |
-
-| JetBrain | Entorno de desarrollo |
+- ☕ Java 17
+- 📦 Apache Maven
+- 🛰️ Orekit
+- 🌐 GitHub
+- 🔀 Git
+- 💻 Visual Studio Code
+- 🧠 IntelliJ IDEA
+- 📋 Trello
 
 
-#  🗂️ Estructura del Proyecto
+# 🗂️ Estructura del Proyecto
 
-```text
-PROGRAMADORES-LUNARES/
-│
-├── .gradle/
-│   ├── 9.2.0/
-│   ├── buildOutputCleanup/
-│   ├── nb-cache/
-│   └── vcs-1/
-│
-├── .idea/
-│   ├── compiler.xml
-│   ├── jarRepositories.xml
-│   └── misc.xml
-│
-├── .vscode/
-│   └── settings.json
+programadores-lunares/
 │
 ├── src/
-│   │
-│   ├── Docs/
-│   │   ├── ArquitecturaSimulacion.md
-│   │   ├── ArquitecturaSistemas.md
-│   │   ├── decisiones.md
-│   │   ├── RequisitosTecnicos.md
-│   │   ├── Riesgos.md
-│   │   ├── SimulacionTecnica.md
-│   │   ├── VistaLogica.md
-│   │   └── VistaProcesos.md
-│   │
 │   ├── Main.java
 │   ├── OrekitConfig.java
-│   └── LEOSimulation.java
+│   ├── LEOSimulation.java
+│   └── RiskReport.java
 │
-├── target/
-│   └── classes/
-│       └── com/
-│           └── nasa/
-│               └── simulador/
+├── orekit-data/
 │
-├── .gitignore
-├── build.gradle
-├── Git.html
+├── docs/
+│
 ├── pom.xml
+│
 ├── README.md
-└── RaizappJava.iml
+│
+└── decisiones.md
 ```
 
 ## Descripción General
 
-La estructura del proyecto se encuentra organizada en directorios de configuración, código fuente, documentación y archivos de construcción.
+El proyecto se encuentra organizado de forma modular para facilitar su desarrollo, mantenimiento y escalabilidad. Cada directorio y archivo cumple una función específica dentro del simulador de misión lunar.
 
-### .gradle/
+### 📁 src/
 
-Contiene archivos generados automáticamente por Gradle para la gestión de dependencias y compilación del proyecto.
-
-### .idea/
-
-Incluye archivos de configuración utilizados por IntelliJ IDEA.
-
-### .vscode/
-
-Contiene configuraciones específicas utilizadas por Visual Studio Code.
-
-### src/
-
-Directorio principal donde se encuentra el código fuente y documentación desarrollada por el equipo.
+Contiene el código fuente principal de la aplicación.
 
 #### Main.java
 
-Punto de entrada del simulador. Coordina la ejecución general del sistema.
+Es el punto de entrada del sistema. Inicia la aplicación y coordina la ejecución de los demás componentes del simulador.
 
 #### OrekitConfig.java
 
-Configura e inicializa la biblioteca Orekit para permitir la ejecución de simulaciones orbitales.
+Configura e inicializa la biblioteca Orekit, cargando los datos necesarios para realizar las simulaciones orbitales.
 
 #### LEOSimulation.java
 
-Implementa la lógica de propagación orbital y simulación de órbitas terrestres bajas (LEO).
+Implementa la lógica principal de la simulación, incluyendo la creación de la órbita, la propagación orbital y el cálculo de la posición de la nave.
 
-#### Docs/
+#### RiskReport.java
 
-Contiene la documentación técnica generada durante el desarrollo del proyecto.
+Genera un reporte con los resultados obtenidos durante la simulación, facilitando la interpretación de la información presentada al usuario.
 
-### target/
+---
 
-Directorio generado automáticamente durante la compilación. Contiene los archivos ejecutables (.class) producidos por Java.
+### 📁 orekit-data/
 
-### pom.xml
+Almacena los archivos de datos utilizados por la biblioteca Orekit para realizar los cálculos y simulaciones orbitales.
 
-Archivo de configuración de Maven utilizado para administrar dependencias y automatizar la construcción del proyecto.
+---
 
-### build.gradle
+### 📁 docs/
 
-Archivo de configuración de Gradle utilizado para tareas de compilación y gestión de dependencias.
+Contiene la documentación técnica del proyecto, incluyendo los documentos desarrollados durante cada entregable.
 
-### README.md
+---
 
-Documento principal del repositorio que describe el proyecto, objetivos y estructura general.
+### 📄 pom.xml
 
-### .gitignore
+Archivo de configuración de Apache Maven encargado de administrar las dependencias del proyecto y automatizar su compilación.
 
-Especifica los archivos y directorios que Git debe ignorar durante el control de versiones.
+---
 
-### RaizappJava.iml
+### 📄 README.md
 
-Archivo de configuración generado por IntelliJ IDEA para el proyecto.
+Documento principal del repositorio. Describe el proyecto, su organización, las tecnologías utilizadas y la información necesaria para comprender su funcionamiento.
 
+---
+
+### 📄 decisiones.md
+
+Documento donde se registran las decisiones tomadas durante el desarrollo del proyecto, incluyendo el uso de herramientas de inteligencia artificial, cambios realizados manualmente y otros aspectos relevantes del proceso de desarrollo.
 ---
 
