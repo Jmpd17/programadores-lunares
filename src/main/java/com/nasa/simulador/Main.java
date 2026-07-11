@@ -16,8 +16,8 @@ public class Main {
 
         } catch (Exception e) {
 
-            System.out.println("ERROR: " + e.getMessage());
-
+            System.err.println("ERROR: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
