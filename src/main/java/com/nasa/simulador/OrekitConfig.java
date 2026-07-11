@@ -1,4 +1,4 @@
-package com.nasa.simulador.RaizappJava.src;
+package com.nasa.simulador;
 
 import java.util.*;
 import org.orekit.time.AbsoluteDate;
