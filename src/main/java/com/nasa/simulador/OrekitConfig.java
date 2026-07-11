@@ -1,6 +1,6 @@
 package com.nasa.simulador;
 
-import java.util.*;
+import java.util.List;
 import org.orekit.time.AbsoluteDate;
 
     public class OrekitConfig {
