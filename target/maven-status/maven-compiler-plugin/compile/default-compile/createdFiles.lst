@@ -1,1 +1,4 @@
-com\nasa\simulador\RaizappJava\src\LEOSimulation.class
+com\nasa\simulador\LEOSimulation.class
+com\nasa\simulador\OrekitConfig.class
+com\nasa\simulador\Main.class
+com\nasa\simulador\TLIPrototype.class

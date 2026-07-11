@@ -20,7 +20,7 @@ import org.orekit.time.TimeScalesFactory;
 
 import org.orekit.utils.Constants;
 
-public class TLIPrototype {
+public final class TLIPrototype {
 
     private static final double KM = 1000.0;
 
@@ -31,54 +31,65 @@ public class TLIPrototype {
     private static final int PROPAGATION_DAYS = 10;
     private static final int STEP_HOURS = 12;
 
+    private TLIPrototype() {
+        // Evita crear objetos de esta clase.
+    }
+
     public static void run() {
 
         Locale.setDefault(Locale.US);
 
         System.out.println();
         System.out.println("====================================================");
-        System.out.println("        ARTEMIS II - TLI SPIKE PROTOTYPE");
+        System.out.println("       ARTEMIS II - SPIKE DE TRAYECTORIA TLI");
         System.out.println("====================================================");
-        System.out.println("Prototype: Trans-Lunar Injection trajectory");
-        System.out.println("Mode: Java console / No GUI / Spike validation");
+        System.out.println("Tipo: Trans-Lunar Injection");
+        System.out.println("Ejecución: consola Java, sin interfaz gráfica");
+        System.out.println("Propósito: prueba de concepto académica");
         System.out.println("====================================================");
-        System.out.println();
 
-        try {
+        Frame inertialFrame = FramesFactory.getEME2000();
 
-            Frame inertialFrame = FramesFactory.getEME2000();
+        /*
+         * Se utiliza TAI para evitar depender de los archivos
+         * de saltos de segundos de UTC mientras no exista orekit-data.
+         */
+        AbsoluteDate initialDate = new AbsoluteDate(
+                2026,
+                1,
+                1,
+                0,
+                0,
+                0.0,
+                TimeScalesFactory.getTAI()
+        );
 
-            AbsoluteDate initialDate = new AbsoluteDate(
-                    2026, 1, 1,
-                    0, 0, 0.0,
-                    TimeScalesFactory.getUTC()
-            );
+        Orbit tliOrbit =
+                createTLIOrbit(initialDate, inertialFrame);
 
-            Orbit tliOrbit = createTLIOrbit(initialDate, inertialFrame);
+        KeplerianPropagator propagator =
+                new KeplerianPropagator(tliOrbit);
 
-            KeplerianPropagator propagator =
-                    new KeplerianPropagator(tliOrbit);
+        double apogeeTimeSeconds =
+                tliOrbit.getKeplerianPeriod() / 2.0;
 
-            double apogeeTimeSeconds =
-                    tliOrbit.getKeplerianPeriod() / 2.0;
+        double moonAngularVelocity =
+                calculateMoonAngularVelocity();
 
-            double moonAngularVelocity =
-                    getMoonAngularVelocity();
+        /*
+         * Ajustamos la fase lunar para que la Luna se encuentre
+         * cerca del apogeo cuando llegue la nave.
+         */
+        double moonInitialPhase =
+                FastMath.PI
+                        - moonAngularVelocity * apogeeTimeSeconds;
 
-            double moonInitialPhase =
-                    FastMath.PI - moonAngularVelocity * apogeeTimeSeconds;
-
-            inspectTrajectory(
-                    propagator,
-                    initialDate,
-                    moonInitialPhase,
-                    moonAngularVelocity
-            );
-
-        } catch (Exception e) {
-            System.out.println("[ERROR] The TLI Spike failed.");
-            System.out.println("Reason: " + e.getMessage());
-        }
+        inspectTrajectory(
+                propagator,
+                initialDate,
+                moonInitialPhase,
+                moonAngularVelocity
+        );
     }
 
     private static Orbit createTLIOrbit(
@@ -87,14 +98,8 @@ public class TLIPrototype {
     ) {
 
         /*
-         * This trajectory is a conceptual TLI Spike.
-         *
-         * The spacecraft starts close to Earth and follows a highly
-         * elliptical Earth-centered trajectory. The apogee is placed near
-         * the lunar region to allow a lunar flyby inspection.
-         *
-         * This is not a production-grade mission design.
-         * It is a proof of concept for the course deliverable.
+         * La nave inicia a 300 km de altitud y alcanza un apogeo
+         * cercano a la región lunar.
          */
 
         double perigeeAltitudeKm = 300.0;
@@ -116,14 +121,9 @@ public class TLIPrototype {
         double inclination =
                 FastMath.toRadians(5.0);
 
-        double raan =
-                FastMath.toRadians(0.0);
-
-        double argumentOfPerigee =
-                FastMath.toRadians(0.0);
-
-        double trueAnomaly =
-                FastMath.toRadians(0.0);
+        double argumentOfPerigee = 0.0;
+        double raan = 0.0;
+        double trueAnomaly = 0.0;
 
         return new KeplerianOrbit(
                 semiMajorAxis,
@@ -151,24 +151,38 @@ public class TLIPrototype {
 
         double maximumEarthDistanceKm = 0.0;
         double finalEarthDistanceKm = 0.0;
-
-        boolean spacecraftMovedAwayFromEarth = false;
-        boolean spacecraftApproachedMoon = false;
-        boolean spacecraftReturnedTowardEarth = false;
-
-        System.out.println("Initial date: " + initialDate);
-        System.out.println("Propagation time: " + PROPAGATION_DAYS + " days");
-        System.out.println();
-
-        System.out.println("+----------+----------------------+----------------------+");
-        System.out.println("| Time (h) | Earth distance (km)  | Moon distance (km)   |");
-        System.out.println("+----------+----------------------+----------------------+");
-
         double previousEarthDistanceKm = 0.0;
+
+        boolean departedEarth = false;
+        boolean reachedLunarRegion = false;
+        boolean returningToEarth = false;
 
         int totalHours = PROPAGATION_DAYS * 24;
 
-        for (int hour = 0; hour <= totalHours; hour += STEP_HOURS) {
+        System.out.println();
+        System.out.println("Fecha inicial: " + initialDate);
+        System.out.println(
+                "Duración de propagación: "
+                        + PROPAGATION_DAYS
+                        + " días"
+        );
+
+        System.out.println();
+        System.out.println(
+                "+----------+----------------------+----------------------+"
+        );
+
+        System.out.println(
+                "| Tiempo   | Distancia Tierra km  | Distancia Luna km    |"
+        );
+
+        System.out.println(
+                "+----------+----------------------+----------------------+"
+        );
+
+        for (int hour = 0;
+             hour <= totalHours;
+             hour += STEP_HOURS) {
 
             double seconds = hour * 3600.0;
 
@@ -179,7 +193,7 @@ public class TLIPrototype {
                     propagator.propagate(currentDate);
 
             Vector3D spacecraftPosition =
-                    state.getPVCoordinates().getPosition();
+                    state.getPosition();
 
             Vector3D moonPosition =
                     calculateApproximateMoonPosition(
@@ -192,7 +206,9 @@ public class TLIPrototype {
                     spacecraftPosition.getNorm() / KM;
 
             double moonDistanceKm =
-                    spacecraftPosition.subtract(moonPosition).getNorm() / KM;
+                    spacecraftPosition
+                            .subtract(moonPosition)
+                            .getNorm() / KM;
 
             if (earthDistanceKm > maximumEarthDistanceKm) {
                 maximumEarthDistanceKm = earthDistanceKm;
@@ -204,39 +220,43 @@ public class TLIPrototype {
             }
 
             if (earthDistanceKm > 100000.0) {
-                spacecraftMovedAwayFromEarth = true;
+                departedEarth = true;
             }
 
             if (moonDistanceKm < 50000.0) {
-                spacecraftApproachedMoon = true;
+                reachedLunarRegion = true;
             }
 
-            if (hour > 0 && previousEarthDistanceKm > earthDistanceKm
-                    && spacecraftMovedAwayFromEarth) {
-                spacecraftReturnedTowardEarth = true;
+            if (hour > 0
+                    && departedEarth
+                    && earthDistanceKm < previousEarthDistanceKm) {
+
+                returningToEarth = true;
             }
 
             previousEarthDistanceKm = earthDistanceKm;
             finalEarthDistanceKm = earthDistanceKm;
 
             System.out.printf(
-                    "| %8d | %20.2f | %20.2f |%n",
+                    "| %6d h | %20.2f | %20.2f |%n",
                     hour,
                     earthDistanceKm,
                     moonDistanceKm
             );
         }
 
-        System.out.println("+----------+----------------------+----------------------+");
+        System.out.println(
+                "+----------+----------------------+----------------------+"
+        );
 
         printInspectionReport(
                 minimumMoonDistanceKm,
                 closestApproachHour,
                 maximumEarthDistanceKm,
                 finalEarthDistanceKm,
-                spacecraftMovedAwayFromEarth,
-                spacecraftApproachedMoon,
-                spacecraftReturnedTowardEarth
+                departedEarth,
+                reachedLunarRegion,
+                returningToEarth
         );
     }
 
@@ -247,30 +267,33 @@ public class TLIPrototype {
     ) {
 
         /*
-         * Simplified Moon model:
-         * The Moon is represented as a circular motion around Earth.
-         * This is enough for visual and numeric inspection in this Spike.
+         * Modelo lunar simplificado:
+         * la Luna se representa mediante una órbita circular
+         * alrededor de la Tierra.
          */
 
         double angle =
                 initialPhase + angularVelocity * seconds;
 
         double x =
-                MOON_MEAN_DISTANCE_KM * KM * FastMath.cos(angle);
+                MOON_MEAN_DISTANCE_KM
+                        * KM
+                        * FastMath.cos(angle);
 
         double y =
-                MOON_MEAN_DISTANCE_KM * KM * FastMath.sin(angle);
+                MOON_MEAN_DISTANCE_KM
+                        * KM
+                        * FastMath.sin(angle);
 
-        double z =
-                0.0;
-
-        return new Vector3D(x, y, z);
+        return new Vector3D(x, y, 0.0);
     }
 
-    private static double getMoonAngularVelocity() {
+    private static double calculateMoonAngularVelocity() {
 
         double moonPeriodSeconds =
-                MOON_ORBITAL_PERIOD_DAYS * 24.0 * 3600.0;
+                MOON_ORBITAL_PERIOD_DAYS
+                        * 24.0
+                        * 3600.0;
 
         return 2.0 * FastMath.PI / moonPeriodSeconds;
     }
@@ -280,71 +303,88 @@ public class TLIPrototype {
             double closestApproachHour,
             double maximumEarthDistanceKm,
             double finalEarthDistanceKm,
-            boolean spacecraftMovedAwayFromEarth,
-            boolean spacecraftApproachedMoon,
-            boolean spacecraftReturnedTowardEarth
+            boolean departedEarth,
+            boolean reachedLunarRegion,
+            boolean returningToEarth
     ) {
 
         System.out.println();
         System.out.println("====================================================");
-        System.out.println("              INSPECTION REPORT");
+        System.out.println("          INFORME DE INSPECCIÓN GEOMÉTRICA");
         System.out.println("====================================================");
 
         System.out.printf(
-                "Closest lunar approach: %.2f km%n",
+                "Mayor acercamiento lunar: %.2f km%n",
                 minimumMoonDistanceKm
         );
 
         System.out.printf(
-                "Time of closest approach: %.2f hours%n",
+                "Tiempo del acercamiento: %.2f horas%n",
                 closestApproachHour
         );
 
         System.out.printf(
-                "Maximum Earth distance: %.2f km%n",
+                "Distancia máxima a la Tierra: %.2f km%n",
                 maximumEarthDistanceKm
         );
 
         System.out.printf(
-                "Final Earth distance: %.2f km%n",
+                "Distancia final a la Tierra: %.2f km%n",
                 finalEarthDistanceKm
         );
 
         System.out.println();
-        System.out.println("Free-return geometry inspection:");
+        System.out.println("Verificación mediante inspección:");
 
-        if (spacecraftMovedAwayFromEarth) {
-            System.out.println("[OK] The spacecraft leaves the Earth region.");
-        } else {
-            System.out.println("[WARN] Earth departure is not clearly visible.");
-        }
+        printStatus(
+                departedEarth,
+                "La nave abandona la región terrestre.",
+                "No se detectó claramente la salida terrestre."
+        );
 
-        if (spacecraftApproachedMoon) {
-            System.out.println("[OK] The trajectory reaches the lunar flyby region.");
-        } else {
-            System.out.println("[WARN] Lunar flyby is not close enough.");
-        }
+        printStatus(
+                reachedLunarRegion,
+                "La trayectoria alcanza la región de sobrevuelo lunar.",
+                "La trayectoria no se acercó lo suficiente a la Luna."
+        );
 
-        if (spacecraftReturnedTowardEarth) {
-            System.out.println("[OK] The spacecraft shows a return trend toward Earth.");
-        } else {
-            System.out.println("[WARN] Return trend is not clearly visible.");
-        }
+        printStatus(
+                returningToEarth,
+                "La nave presenta una tendencia de regreso a la Tierra.",
+                "No se detectó claramente el regreso hacia la Tierra."
+        );
 
         System.out.println();
 
-        if (spacecraftMovedAwayFromEarth
-                && spacecraftApproachedMoon
-                && spacecraftReturnedTowardEarth) {
+        if (departedEarth
+                && reachedLunarRegion
+                && returningToEarth) {
 
-            System.out.println("[RESULT] Free-return geometry is visible by inspection.");
+            System.out.println(
+                    "[RESULTADO] Geometría de retorno visible por inspección."
+            );
 
         } else {
 
-            System.out.println("[RESULT] Free-return geometry requires adjustment.");
+            System.out.println(
+                    "[RESULTADO] La geometría requiere más ajustes."
+            );
         }
 
         System.out.println("====================================================");
-        System.out.println("[SUCCESS] TLI Spike prototype completed.");
+        System.out.println("[SUCCESS] Spike TLI completado.");
+    }
+
+    private static void printStatus(
+            boolean condition,
+            String successMessage,
+            String warningMessage
+    ) {
+
+        if (condition) {
+            System.out.println("[OK] " + successMessage);
+        } else {
+            System.out.println("[WARNING] " + warningMessage);
+        }
     }
 }
