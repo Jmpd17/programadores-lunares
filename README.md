@@ -72,14 +72,14 @@ El Spike TLI ejecuta una simulación orbital orientada a representar una trayect
 
 Durante su funcionamiento, el prototipo permite observar información relacionada con:
 
-- La trayectoria de la nave desde una órbita terrestre.
-- El desplazamiento de la nave hacia la región lunar.
-- La distancia de la nave respecto a la Tierra.
-- La distancia de la nave respecto a la Luna.
-- El momento de mayor acercamiento lunar.
-- La máxima distancia orbital alcanzada.
-- La tendencia de retorno de la nave hacia la Tierra.
-- El resultado de la inspección geométrica del retorno libre.
+La trayectoria de la nave desde una órbita terrestre.
+El desplazamiento de la nave hacia la región lunar.
+ La distancia de la nave respecto a la Tierra.
+ La distancia de la nave respecto a la Luna.
+ El momento de mayor acercamiento lunar.
+ La máxima distancia orbital alcanzada.
+ La tendencia de retorno de la nave hacia la Tierra.
+ El resultado de la inspección geométrica del retorno libre.
 
 ## Ejecución
 
@@ -87,11 +87,11 @@ El prototipo se ejecuta mediante consola desde el proyecto Java configurado con 
 
 Antes de ejecutarlo se debe verificar que:
 
-1. Java se encuentre instalado correctamente.
-2. Maven esté disponible en el equipo.
-3. Las dependencias indicadas en el archivo `pom.xml` hayan sido descargadas.
-4. Los datos requeridos por Orekit estén correctamente configurados.
-5. La clase principal del prototipo pueda ejecutarse sin errores.
+Java se encuentre instalado correctamente.
+ Maven esté disponible en el equipo.
+ Las dependencias indicadas en el archivo `pom.xml` hayan sido descargadas.
+ Los datos requeridos por Orekit estén correctamente configurados.
+ La clase principal del prototipo pueda ejecutarse sin errores.
 
 La trayectoria y los resultados de la simulación se muestran mediante la salida de consola.
 
@@ -99,11 +99,11 @@ La trayectoria y los resultados de la simulación se muestran mediante la salida
 
 La revisión de requisitos confirmó que:
 
-- El Spike TLI fue desarrollado utilizando Orekit.
-- La trayectoria fue implementada en Java.
-- La simulación se ejecuta sin interfaz gráfica.
-- El prototipo demuestra un acercamiento a la región lunar.
-- El sistema permite inspeccionar geométricamente una tendencia de retorno hacia la Tierra.
+El Spike TLI fue desarrollado utilizando Orekit.
+La trayectoria fue implementada en Java.
+ La simulación se ejecuta sin interfaz gráfica.
+ El prototipo demuestra un acercamiento a la región lunar.
+ El sistema permite inspeccionar geométricamente una tendencia de retorno hacia la Tierra.
 
 **Estado de validación: Aprobado para entrega.**
 
@@ -111,27 +111,13 @@ La revisión de requisitos confirmó que:
 
 La implementación actual corresponde a una prueba de concepto académica y presenta las siguientes limitaciones:
 
-- No constituye todavía una versión con calidad de producción.
-- La ejecución se realiza mediante consola.
-- No se ha incorporado todavía una interfaz gráfica.
-- La posición de la Luna se representa mediante un modelo simplificado.
-- La verificación del retorno libre se realiza mediante inspección geométrica.
-- No se implementa todavía una simulación gravitacional completa del sistema Tierra-Luna.
-- Algunos parámetros orbitales deberán ajustarse y documentarse con mayor precisión en versiones posteriores.
-
-## Evidencias
-
-Para respaldar el cumplimiento del entregable se organizaron las siguientes evidencias:
-
-- Capturas del código fuente.
-- Capturas del prototipo funcionando.
-- Capturas de los resultados mostrados en consola.
-- Evidencia del acercamiento lunar.
-- Evidencia de la inspección geométrica del retorno libre.
-- Documento de validación de requisitos.
-- Documento de arquitectura del módulo TLI.
-- Evidencia del tablero de Trello actualizado.
-- Material preparado para la demostración ante el instructor.
+ No constituye todavía una versión con calidad de producción.
+La ejecución se realiza mediante consola.
+No se ha incorporado todavía una interfaz gráfica.
+ La posición de la Luna se representa mediante un modelo simplificado.
+La verificación del retorno libre se realiza mediante inspección geométrica.
+No se implementa todavía una simulación gravitacional completa del sistema Tierra-Luna.
+ Algunos parámetros orbitales deberán ajustarse y documentarse con mayor precisión en versiones posteriores.
 
 ## Demostración
 
@@ -139,8 +125,4 @@ El equipo realizará una demostración técnica ante el instructor.
 
 Durante la demostración se ejecutará el prototipo, se mostrarán los resultados de la trayectoria mediante consola y se explicará el funcionamiento general de la prueba de concepto.
 
-## Estado del entregable
 
-El Spike TLI fue desarrollado y validado dentro del alcance establecido para el Hito E4.
-
-El código, la documentación y las evidencias se encuentran organizados en el repositorio del proyecto para su revisión y demostración.
