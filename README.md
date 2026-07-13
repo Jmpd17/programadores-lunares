@@ -96,10 +96,7 @@ programadores-lunares/
 ├── README.md
 └── .gitignore
 
-
-
-
-## Funcionamiento general
+✔️ Funcionamiento general
 
 El Spike TLI ejecuta una simulación orbital orientada a representar una trayectoria translunar.
 
@@ -114,7 +111,7 @@ El desplazamiento de la nave hacia la región lunar.
  La tendencia de retorno de la nave hacia la Tierra.
  El resultado de la inspección geométrica del retorno libre.
 
-## Ejecución
+Ejecución
 
 El prototipo se ejecuta mediante consola desde el proyecto Java configurado con Maven.
 
@@ -128,7 +125,7 @@ Java se encuentre instalado correctamente.
 
 La trayectoria y los resultados de la simulación se muestran mediante la salida de consola.
 
-## Validación realizada
+ ✅Validación realizada
 
 La revisión de requisitos confirmó que:
 
@@ -138,21 +135,7 @@ La trayectoria fue implementada en Java.
  El prototipo demuestra un acercamiento a la región lunar.
  El sistema permite inspeccionar geométricamente una tendencia de retorno hacia la Tierra.
 
-**Estado de validación: Aprobado para entrega.**
-
-## Observaciones y limitaciones
-
-La implementación actual corresponde a una prueba de concepto académica y presenta las siguientes limitaciones:
-
- No constituye todavía una versión con calidad de producción.
-La ejecución se realiza mediante consola.
-No se ha incorporado todavía una interfaz gráfica.
- La posición de la Luna se representa mediante un modelo simplificado.
-La verificación del retorno libre se realiza mediante inspección geométrica.
-No se implementa todavía una simulación gravitacional completa del sistema Tierra-Luna.
- Algunos parámetros orbitales deberán ajustarse y documentarse con mayor precisión en versiones posteriores.
-
-## Demostración
+Demostración
 
 El equipo realizará una demostración técnica ante el instructor.
 
