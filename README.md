@@ -25,16 +25,15 @@ El **Simulador de Misión Lunar Artemis II** es un proyecto académico orientado
 El objetivo principal es recrear procesos fundamentales de navegación y propagación orbital mediante el uso de la librería **Orekit**, permitiendo simular trayectorias espaciales, telemetría y futuras operaciones relacionadas con misiones lunares.
 
 # 👨‍🚀 TRIPULACIÓN |ROL|
+# 👨‍🚀 Tripulación y roles
 
-| Enmanuel Suriel  |CDR|
-
-| Jesus Polanco |FDO|
-
-| Franklin Isaac Serrano |ARCH|
-
-| John Mario Ventura  |CAPCOM|
-
-| Osvaldo Diaz |REQ|
+| Integrante | Rol |
+|---|---|
+| Enmanuel Suriel | CDR |
+| Jesús Polanco | FDO |
+| Franklin Isaac Serrano | ARCH |
+| John Mario Ventura Contreras | CAPCOM |
+| Osvaldo Rafael Díaz Castro | REQ |
 
 # 🎯 Objetivos del Entregable #3 – Spike TLI
 
