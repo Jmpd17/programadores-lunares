@@ -66,6 +66,36 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 - 🧠 IntelliJ IDEA
 - 📋 Trello
 
+  # 🗂️ Estructura del Proyecto
+
+
+programadores-lunares/
+│
+├── src/
+│   ├── Docs/
+│   │   ├── ArquitecturaSimulacion.md
+│   │   ├── ArquitecturaSistemas.md
+│   │   ├── Requisitos Tecnicos.md
+│   │   ├── Riegos.md
+│   │   ├── Simulacion Tecnica.md
+│   │   ├── SpikeTLI.md
+│   │   ├── VistaLogica.md
+│   │   ├── VistaProcesos.md
+│   │   └── decisiones.md
+│   │
+│   └── main/
+│       └── java/
+│           └── com/
+│               └── nasa/
+│                   └── simulador/
+│                       ├── Main.java
+│                       ├── OrekitConfig.java
+│                       └── TLIPrototype.java
+│
+├── pom.xml
+├── README.md
+└── .gitignore
+
 ## Funcionamiento general
 
 El Spike TLI ejecuta una simulación orbital orientada a representar una trayectoria translunar.
