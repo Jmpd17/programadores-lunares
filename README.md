@@ -36,13 +36,17 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 
 | Osvaldo Diaz |REQ|
 
-#  Objetivos Iniciales
+# 🎯 Objetivos del Entregable #3 – Spike TLI
 
-✅ Integrar la librería Orekit  
-✅ Realizar propagación orbital LEO  
-✅ Verificar la cadena de herramientas  
-✅ Documentar riesgos técnicos  
-✅ Preparar arquitectura inicial del simulador  
+✅ Desarrollar un prototipo de Trayectoria de Inyección Translunar utilizando Orekit.
+✅ Implementar una trayectoria de sobrevuelo lunar en Java.
+✅ Ejecutar la simulación mediante consola, sin interfaz gráfica.
+✅ Calcular la distancia de la nave respecto a la Tierra y la Luna.
+✅ Identificar el momento de mayor acercamiento lunar.
+✅ Inspeccionar geométricamente la tendencia de retorno hacia la Tierra.
+✅ Actualizar la documentación técnica y las evidencias del proyecto.
+✅ Mantener actualizado el tablero de Trello.
+
 
 💻 Tecnologías utilizadas
 
@@ -55,106 +59,81 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 - 🧠 IntelliJ IDEA
 - 📋 Trello
 
-# 🗂️ Estructura del Proyecto
+## Funcionamiento general
 
-```text
-PROGRAMADORES-LUNARES/
-│
-├── .gradle/
-│   ├── 9.2.0/
-│   ├── buildOutputCleanup/
-│   ├── nb-cache/
-│   └── vcs-1/
-│
-├── .idea/
-│   ├── compiler.xml
-│   ├── jarRepositories.xml
-│   └── misc.xml
-│
-├── .vscode/
-│   └── settings.json
-│
-├── src/
-│   ├── Docs/
-│   │   ├── ArquitecturaSimulacion.md
-│   │   ├── ArquitecturaSistemas.md
-│   │   ├── decisiones.md
-│   │   ├── RequisitosTecnicos.md
-│   │   ├── Riesgos.md
-│   │   ├── SimulacionTecnica.md
-│   │   ├── VistaLogica.md
-│   │   └── VistaProcesos.md
-│   │
-│   ├── Main.java
-│   ├── OrekitConfig.java
-│   └── LEOSimulation.java
-│
-├── target/
-│   └── classes/
-│       └── com/
-│           └── nasa/
-│               └── simulador/
-│
-├── .gitignore
-├── build.gradle
-├── Git.html
-├── pom.xml
-├── README.md
-└── RaizappJava.iml
-```
+El Spike TLI ejecuta una simulación orbital orientada a representar una trayectoria translunar.
 
-## Descripción General
+Durante su funcionamiento, el prototipo permite observar información relacionada con:
 
-El proyecto se encuentra organizado de forma modular para facilitar su desarrollo, mantenimiento y escalabilidad. Cada directorio y archivo cumple una función específica dentro del simulador de misión lunar.
+- La trayectoria de la nave desde una órbita terrestre.
+- El desplazamiento de la nave hacia la región lunar.
+- La distancia de la nave respecto a la Tierra.
+- La distancia de la nave respecto a la Luna.
+- El momento de mayor acercamiento lunar.
+- La máxima distancia orbital alcanzada.
+- La tendencia de retorno de la nave hacia la Tierra.
+- El resultado de la inspección geométrica del retorno libre.
 
-### 📁 src/
+## Ejecución
 
-Contiene el código fuente principal de la aplicación.
+El prototipo se ejecuta mediante consola desde el proyecto Java configurado con Maven.
 
-#### Main.java
+Antes de ejecutarlo se debe verificar que:
 
-Es el punto de entrada del sistema. Inicia la aplicación y coordina la ejecución de los demás componentes del simulador.
+1. Java se encuentre instalado correctamente.
+2. Maven esté disponible en el equipo.
+3. Las dependencias indicadas en el archivo `pom.xml` hayan sido descargadas.
+4. Los datos requeridos por Orekit estén correctamente configurados.
+5. La clase principal del prototipo pueda ejecutarse sin errores.
 
-#### OrekitConfig.java
+La trayectoria y los resultados de la simulación se muestran mediante la salida de consola.
 
-Configura e inicializa la biblioteca Orekit, cargando los datos necesarios para realizar las simulaciones orbitales.
+## Validación realizada
 
-#### LEOSimulation.java
+La revisión de requisitos confirmó que:
 
-Implementa la lógica principal de la simulación, incluyendo la creación de la órbita, la propagación orbital y el cálculo de la posición de la nave.
+- El Spike TLI fue desarrollado utilizando Orekit.
+- La trayectoria fue implementada en Java.
+- La simulación se ejecuta sin interfaz gráfica.
+- El prototipo demuestra un acercamiento a la región lunar.
+- El sistema permite inspeccionar geométricamente una tendencia de retorno hacia la Tierra.
 
-#### RiskReport.java
+**Estado de validación: Aprobado para entrega.**
 
-Genera un reporte con los resultados obtenidos durante la simulación, facilitando la interpretación de la información presentada al usuario.
+## Observaciones y limitaciones
 
----
+La implementación actual corresponde a una prueba de concepto académica y presenta las siguientes limitaciones:
 
-### 📁 orekit-data/
+- No constituye todavía una versión con calidad de producción.
+- La ejecución se realiza mediante consola.
+- No se ha incorporado todavía una interfaz gráfica.
+- La posición de la Luna se representa mediante un modelo simplificado.
+- La verificación del retorno libre se realiza mediante inspección geométrica.
+- No se implementa todavía una simulación gravitacional completa del sistema Tierra-Luna.
+- Algunos parámetros orbitales deberán ajustarse y documentarse con mayor precisión en versiones posteriores.
 
-Almacena los archivos de datos utilizados por la biblioteca Orekit para realizar los cálculos y simulaciones orbitales.
+## Evidencias
 
----
+Para respaldar el cumplimiento del entregable se organizaron las siguientes evidencias:
 
-### 📁 docs/
+- Capturas del código fuente.
+- Capturas del prototipo funcionando.
+- Capturas de los resultados mostrados en consola.
+- Evidencia del acercamiento lunar.
+- Evidencia de la inspección geométrica del retorno libre.
+- Documento de validación de requisitos.
+- Documento de arquitectura del módulo TLI.
+- Evidencia del tablero de Trello actualizado.
+- Material preparado para la demostración ante el instructor.
 
-Contiene la documentación técnica del proyecto, incluyendo los documentos desarrollados durante cada entregable.
+## Demostración
 
----
+El equipo realizará una demostración técnica ante el instructor.
 
-### 📄 pom.xml
+Durante la demostración se ejecutará el prototipo, se mostrarán los resultados de la trayectoria mediante consola y se explicará el funcionamiento general de la prueba de concepto.
 
-Archivo de configuración de Apache Maven encargado de administrar las dependencias del proyecto y automatizar su compilación.
+## Estado del entregable
 
----
+El Spike TLI fue desarrollado y validado dentro del alcance establecido para el Hito E4.
 
-### 📄 README.md
-
-Documento principal del repositorio. Describe el proyecto, su organización, las tecnologías utilizadas y la información necesaria para comprender su funcionamiento.
-
----
-
-### 📄 decisiones.md
-
-Documento donde se registran las decisiones tomadas durante el desarrollo del proyecto, incluyendo el uso de herramientas de inteligencia artificial, cambios realizados manualmente y otros aspectos relevantes del proceso de desarrollo.
----
-
+El código, la documentación y las evidencias se encuentran organizados en el repositorio del proyecto para su revisión y demostración.
