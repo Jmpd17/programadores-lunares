@@ -35,23 +35,16 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 | John Mario Ventura Contreras | CAPCOM |
 | Osvaldo Rafael Díaz Castro | REQ |
 
-# 🎯 Objetivos del Entregable #3 – Spike TLI
+ # 🎯 Objetivos del Entregable #3 – Spike TLI
 
- Desarrollar un prototipo de Trayectoria de Inyección Translunar utilizando Orekit.
-
- Implementar una trayectoria de sobrevuelo lunar en Java.
-
- Ejecutar la simulación mediante consola, sin interfaz gráfica.
-
- Calcular la distancia de la nave respecto a la Tierra y la Luna.
-
- Identificar el momento de mayor acercamiento lunar.
-
- Inspeccionar geométricamente la tendencia de retorno hacia la Tierra.
-
- Actualizar la documentación técnica y las evidencias del proyecto.
-
- Mantener actualizado el tablero de Trello.
+- Desarrollar un prototipo de Trayectoria de Inyección Translunar utilizando Orekit.
+- Implementar una trayectoria de sobrevuelo lunar en Java.
+- Ejecutar la simulación mediante consola, sin interfaz gráfica.
+- Calcular la distancia de la nave respecto a la Tierra y la Luna.
+- Identificar el momento de mayor acercamiento lunar.
+- Inspeccionar geométricamente la tendencia de retorno hacia la Tierra.
+- Actualizar la documentación técnica y las evidencias del proyecto.
+- Mantener actualizado el tablero de Trello.
 
 
 💻 Tecnologías utilizadas
@@ -65,7 +58,11 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 - 🧠 IntelliJ IDEA
 - 📋 Trello
 
- # 🗂️ Estructura del Proyecto
+
+Es decir, debe quedar así:
+
+````md
+# 🗂️ Estructura del Proyecto
 
 ```text
 programadores-lunares/
