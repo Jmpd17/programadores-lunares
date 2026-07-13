@@ -58,8 +58,6 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 - 📋 Trello
 
 
-Es decir, debe quedar así:
-
 ````md
 # 🗂️ Estructura del Proyecto
 
@@ -113,10 +111,10 @@ El prototipo se ejecuta mediante consola desde el proyecto Java configurado con 
 Antes de ejecutarlo se debe verificar que:
 
 Java se encuentre instalado correctamente.
- Maven esté disponible en el equipo.
- Las dependencias indicadas en el archivo `pom.xml` hayan sido descargadas.
- Los datos requeridos por Orekit estén correctamente configurados.
- La clase principal del prototipo pueda ejecutarse sin errores.
+Maven esté disponible en el equipo.
+Las dependencias indicadas en el archivo `pom.xml` hayan sido descargadas.
+Los datos requeridos por Orekit estén correctamente configurados.
+La clase principal del prototipo pueda ejecutarse sin errores.
 
 La trayectoria y los resultados de la simulación se muestran mediante la salida de consola.
 
@@ -126,9 +124,9 @@ La revisión de requisitos confirmó que:
 
 El Spike TLI fue desarrollado utilizando Orekit.
 La trayectoria fue implementada en Java.
- La simulación se ejecuta sin interfaz gráfica.
- El prototipo demuestra un acercamiento a la región lunar.
- El sistema permite inspeccionar geométricamente una tendencia de retorno hacia la Tierra.
+La simulación se ejecuta sin interfaz gráfica.
+El prototipo demuestra un acercamiento a la región lunar.
+El sistema permite inspeccionar geométricamente una tendencia de retorno hacia la Tierra.
 
 Demostración
 
