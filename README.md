@@ -66,9 +66,9 @@ El objetivo principal es recrear procesos fundamentales de navegación y propaga
 - 🧠 IntelliJ IDEA
 - 📋 Trello
 
-  # 🗂️ Estructura del Proyecto
+ # 🗂️ Estructura del Proyecto
 
-
+```text
 programadores-lunares/
 │
 ├── src/
@@ -95,6 +95,9 @@ programadores-lunares/
 ├── pom.xml
 ├── README.md
 └── .gitignore
+
+
+
 
 ## Funcionamiento general
 
