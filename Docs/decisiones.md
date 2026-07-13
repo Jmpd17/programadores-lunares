@@ -5,7 +5,7 @@
 **Proyecto:** Simulador de Misión Lunar Artemis II  
 **Repositorio:** Programadores-Lunares  
 **Estado actual:** Desarrollo y validación del Spike TLI  
-**Última actualización:** Julio de 2026  
+**Última actualización:** 13 Julio de 2026  
 
 ---
 
