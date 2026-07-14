@@ -309,7 +309,7 @@ Las evidencias organizadas para este entregable incluyen:
 
 # 🧑‍🏫 Demostración
 
-Durante la demostración ante el instructor, el equipo realizará las siguientes acciones:
+Durante la demostración ante el instructor, la tripulacion realizará las siguientes acciones:
 
 1. Presentar brevemente el objetivo del Spike TLI.
 2. Mostrar la estructura principal del proyecto.
