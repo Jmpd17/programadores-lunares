@@ -118,7 +118,7 @@ La clase principal del prototipo pueda ejecutarse sin errores.
 
 La trayectoria y los resultados de la simulación se muestran mediante la salida de consola.
 
- ✅Validación realizada
+✅Validación realizada
 
 La revisión de requisitos confirmó que:
 
