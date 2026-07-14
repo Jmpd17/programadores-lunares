@@ -31,7 +31,7 @@ El prototipo fue desarrollado en Java, se ejecuta mediante consola y no incluye 
 
 ---
 
-# 👨‍🚀 Tripulación y roles
+# 👨‍🚀 Tripulación y Roles
 
 | Integrante | Rol |
 |---|---|
