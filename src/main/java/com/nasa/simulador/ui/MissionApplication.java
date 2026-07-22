@@ -1,8 +1,14 @@
 package com.nasa.simulador.ui;
 
+import com.nasa.simulador.OrekitConfig;
+import com.nasa.simulador.physics.ArtemisMissionSimulation;
 import com.nasa.simulador.physics.MissionParameters;
+import com.nasa.simulador.physics.MissionSimulationResult;
+import com.nasa.simulador.physics.TLIParameters;
+import com.nasa.simulador.physics.TrajectoryPoint;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -24,10 +30,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 /**
- * Interfaz principal del simulador de misión lunar Artemis II.
- *
- * <p>Esta primera versión establece la estructura visual.
- * La integración con Orekit se realizará en el siguiente paso.</p>
+ * Interfaz principal del simulador Artemis II.
  */
 public final class MissionApplication extends Application {
 
@@ -45,12 +48,11 @@ public final class MissionApplication extends Application {
     private Label statusLabel;
 
     private Circle spacecraft;
+    private Button executeButton;
 
-    /**
-     * Construye y muestra la interfaz.
-     *
-     * @param stage ventana principal
-     */
+    private MissionSimulationResult simulationResult;
+    private Task<MissionSimulationResult> simulationTask;
+
     @Override
     public void start(Stage stage) {
 
@@ -75,16 +77,12 @@ public final class MissionApplication extends Application {
         stage.setTitle(
                 "Artemis II Mission Simulator"
         );
-
         stage.setMinWidth(1100);
         stage.setMinHeight(700);
         stage.setScene(scene);
         stage.show();
     }
 
-    /**
-     * Crea el encabezado de la aplicación.
-     */
     private VBox createHeader() {
 
         Label title = new Label(
@@ -127,9 +125,6 @@ public final class MissionApplication extends Application {
         return header;
     }
 
-    /**
-     * Crea la visualización espacial inicial.
-     */
     private Pane createSpaceView() {
 
         Pane space = new Pane();
@@ -234,9 +229,6 @@ public final class MissionApplication extends Application {
         return space;
     }
 
-    /**
-     * Crea un texto para identificar objetos espaciales.
-     */
     private Label createSpaceLabel(
             String text,
             double x,
@@ -248,16 +240,12 @@ public final class MissionApplication extends Application {
         label.setTextFill(
                 Color.web("#c9e7ff")
         );
-
         label.setLayoutX(x);
         label.setLayoutY(y);
 
         return label;
     }
 
-    /**
-     * Crea el panel lateral con parámetros y telemetría.
-     */
     private ScrollPane createControlPanel() {
 
         VBox panel = new VBox(12);
@@ -265,17 +253,10 @@ public final class MissionApplication extends Application {
         panel.setPadding(
                 new Insets(18)
         );
-
         panel.setPrefWidth(330);
-
         panel.setStyle(
                 "-fx-background-color: #102030;"
         );
-
-        Label parametersTitle =
-                createSectionTitle(
-                        "PARÁMETROS DE MISIÓN"
-                );
 
         deltaVField = createInput(
                 String.format(
@@ -303,7 +284,9 @@ public final class MissionApplication extends Application {
         );
 
         panel.getChildren().addAll(
-                parametersTitle,
+                createSectionTitle(
+                        "PARÁMETROS DE MISIÓN"
+                ),
                 createField(
                         "Delta-v TLI (km/s)",
                         deltaVField
@@ -318,16 +301,29 @@ public final class MissionApplication extends Application {
                 ),
                 createActionButtons(),
                 new Separator(),
-                createSectionTitle("TELEMETRÍA")
+                createSectionTitle(
+                        "TELEMETRÍA"
+                )
         );
 
-        timeValue = createTelemetryValue("0.000 h");
+        timeValue = createTelemetryValue(
+                "0.000 h"
+        );
+
         earthAltitudeValue =
-                createTelemetryValue("185.000 km");
+                createTelemetryValue(
+                        "185.000 km"
+                );
+
         moonDistanceValue =
-                createTelemetryValue("-- km");
+                createTelemetryValue(
+                        "-- km"
+                );
+
         speedValue =
-                createTelemetryValue("-- km/s");
+                createTelemetryValue(
+                        "-- km/s"
+                );
 
         panel.getChildren().addAll(
                 createTelemetryRow(
@@ -354,7 +350,6 @@ public final class MissionApplication extends Application {
                 new ScrollPane(panel);
 
         scrollPane.setFitToWidth(true);
-
         scrollPane.setStyle(
                 "-fx-background: #102030;"
                         + "-fx-background-color: #102030;"
@@ -363,16 +358,17 @@ public final class MissionApplication extends Application {
         return scrollPane;
     }
 
-    /**
-     * Crea los botones principales.
-     */
     private HBox createActionButtons() {
 
-        Button executeButton =
-                new Button("Ejecutar simulación");
+        executeButton =
+                new Button(
+                        "Ejecutar simulación"
+                );
 
         Button resetButton =
-                new Button("Reiniciar");
+                new Button(
+                        "Reiniciar"
+                );
 
         executeButton.setStyle(
                 "-fx-background-color: #1976a8;"
@@ -385,15 +381,12 @@ public final class MissionApplication extends Application {
                         + "-fx-text-fill: white;"
         );
 
-        executeButton.setOnAction(event ->
-                statusLabel.setText(
-                        "Interfaz lista. "
-                                + "Falta conectar el motor Orekit."
-                )
+        executeButton.setOnAction(
+                event -> executeSimulation()
         );
 
-        resetButton.setOnAction(event ->
-                resetInterface()
+        resetButton.setOnAction(
+                event -> resetInterface()
         );
 
         HBox buttons = new HBox(
@@ -409,22 +402,32 @@ public final class MissionApplication extends Application {
         return buttons;
     }
 
-    /**
-     * Crea los controles de reproducción.
-     */
     private VBox createPlaybackControls() {
 
         Label title =
-                createSectionTitle("REPRODUCCIÓN");
+                createSectionTitle(
+                        "REPRODUCCIÓN"
+                );
 
         Button playButton =
-                new Button("Reproducir");
+                new Button(
+                        "Reproducir"
+                );
 
         Button pauseButton =
-                new Button("Pausar");
+                new Button(
+                        "Pausar"
+                );
+
+        playButton.setDisable(true);
+        pauseButton.setDisable(true);
 
         Slider speedSlider =
-                new Slider(1, 1000, 1);
+                new Slider(
+                        1,
+                        1000,
+                        1
+                );
 
         speedSlider.setShowTickLabels(true);
         speedSlider.setShowTickMarks(true);
@@ -432,7 +435,9 @@ public final class MissionApplication extends Application {
         speedSlider.setBlockIncrement(10);
 
         Label speedLabel =
-                new Label("Escala de tiempo: 1x");
+                new Label(
+                        "Escala de tiempo: 1x"
+                );
 
         speedLabel.setTextFill(
                 Color.LIGHTGRAY
@@ -464,9 +469,6 @@ public final class MissionApplication extends Application {
         );
     }
 
-    /**
-     * Crea la barra inferior de estado.
-     */
     private HBox createStatusBar() {
 
         statusLabel = new Label(
@@ -478,7 +480,9 @@ public final class MissionApplication extends Application {
         );
 
         HBox statusBar =
-                new HBox(statusLabel);
+                new HBox(
+                        statusLabel
+                );
 
         statusBar.setPadding(
                 new Insets(8, 15, 8, 15)
@@ -491,6 +495,228 @@ public final class MissionApplication extends Application {
         );
 
         return statusBar;
+    }
+
+    private void executeSimulation() {
+
+        try {
+
+            double deltaV =
+                    parseNumber(
+                            deltaVField,
+                            "Delta-v"
+                    );
+
+            double ignitionHours =
+                    parseNumber(
+                            ignitionField,
+                            "Tiempo de encendido"
+                    );
+
+            double altitudeKm =
+                    parseNumber(
+                            altitudeField,
+                            "Altitud inicial"
+                    );
+
+            validateParameters(
+                    deltaV,
+                    ignitionHours,
+                    altitudeKm
+            );
+
+            TLIParameters parameters =
+                    new TLIParameters(
+                            deltaV,
+                            ignitionHours,
+                            1.0,
+                            0.0,
+                            0.0,
+                            MissionParameters
+                                    .DEFAULT_TLI_ISP_S
+                    );
+
+            executeButton.setDisable(true);
+
+            statusLabel.setText(
+                    "Calculando trayectoria con Orekit..."
+            );
+
+            simulationTask =
+                    new Task<>() {
+
+                        @Override
+                        protected MissionSimulationResult call() {
+
+                            OrekitConfig.init();
+
+                            return ArtemisMissionSimulation.run(
+                                    parameters,
+                                    altitudeKm
+                            );
+                        }
+                    };
+
+            simulationTask.setOnSucceeded(
+                    event -> {
+
+                        simulationResult =
+                                simulationTask.getValue();
+
+                        executeButton.setDisable(false);
+
+                        showInitialTelemetry();
+
+                        statusLabel.setText(
+                                "Simulación completada: "
+                                        + simulationResult
+                                                .getTrajectory()
+                                                .size()
+                                        + " puntos preparados."
+                        );
+                    }
+            );
+
+            simulationTask.setOnFailed(
+                    event -> {
+
+                        executeButton.setDisable(false);
+
+                        Throwable error =
+                                simulationTask.getException();
+
+                        statusLabel.setText(
+                                "Error en la simulación: "
+                                        + (
+                                        error == null
+                                                ? "causa desconocida"
+                                                : error.getMessage()
+                                )
+                        );
+
+                        if (error != null) {
+                            error.printStackTrace();
+                        }
+                    }
+            );
+
+            Thread simulationThread =
+                    new Thread(
+                            simulationTask,
+                            "orekit-simulation-thread"
+                    );
+
+            simulationThread.setDaemon(true);
+            simulationThread.start();
+
+        } catch (IllegalArgumentException error) {
+
+            statusLabel.setText(
+                    "Parámetros inválidos: "
+                            + error.getMessage()
+            );
+        }
+    }
+
+    private void showInitialTelemetry() {
+
+        if (simulationResult == null
+                || simulationResult
+                        .getTrajectory()
+                        .isEmpty()) {
+
+            return;
+        }
+
+        TrajectoryPoint point =
+                simulationResult
+                        .getTrajectory()
+                        .get(0);
+
+        timeValue.setText(
+                String.format(
+                        "%.3f h",
+                        point.getElapsedSeconds()
+                                / MissionParameters.HOUR
+                )
+        );
+
+        earthAltitudeValue.setText(
+                String.format(
+                        "%.3f km",
+                        point.getEarthAltitudeM()
+                                / MissionParameters.KM
+                )
+        );
+
+        moonDistanceValue.setText(
+                String.format(
+                        "%.3f km",
+                        point.getMoonDistanceM()
+                                / MissionParameters.KM
+                )
+        );
+
+        speedValue.setText(
+                String.format(
+                        "%.6f km/s",
+                        point.getSpeedMps()
+                                / MissionParameters.KM
+                )
+        );
+    }
+
+    private double parseNumber(
+            TextField field,
+            String parameterName
+    ) {
+
+        try {
+
+            return Double.parseDouble(
+                    field.getText()
+                            .trim()
+                            .replace(',', '.')
+            );
+
+        } catch (NumberFormatException error) {
+
+            throw new IllegalArgumentException(
+                    parameterName
+                            + " debe contener un número válido."
+            );
+        }
+    }
+
+    private void validateParameters(
+            double deltaV,
+            double ignitionHours,
+            double altitudeKm
+    ) {
+
+        if (!Double.isFinite(deltaV)
+                || deltaV <= 0.0) {
+
+            throw new IllegalArgumentException(
+                    "El delta-v debe ser mayor que cero."
+            );
+        }
+
+        if (!Double.isFinite(ignitionHours)
+                || ignitionHours < 0.0) {
+
+            throw new IllegalArgumentException(
+                    "El encendido no puede ser negativo."
+            );
+        }
+
+        if (!Double.isFinite(altitudeKm)
+                || altitudeKm <= 120.0) {
+
+            throw new IllegalArgumentException(
+                    "La órbita inicial debe superar los 120 km."
+            );
+        }
     }
 
     private Label createSectionTitle(
@@ -592,10 +818,15 @@ public final class MissionApplication extends Application {
         return row;
     }
 
-    /**
-     * Restablece los valores visuales iniciales.
-     */
     private void resetInterface() {
+
+        if (simulationTask != null
+                && simulationTask.isRunning()) {
+
+            simulationTask.cancel();
+        }
+
+        simulationResult = null;
 
         deltaVField.setText(
                 String.format(
@@ -622,24 +853,32 @@ public final class MissionApplication extends Application {
                 )
         );
 
-        timeValue.setText("0.000 h");
-        earthAltitudeValue.setText("185.000 km");
-        moonDistanceValue.setText("-- km");
-        speedValue.setText("-- km/s");
+        timeValue.setText(
+                "0.000 h"
+        );
+
+        earthAltitudeValue.setText(
+                "185.000 km"
+        );
+
+        moonDistanceValue.setText(
+                "-- km"
+        );
+
+        speedValue.setText(
+                "-- km/s"
+        );
 
         spacecraft.setCenterX(300);
         spacecraft.setCenterY(310);
+
+        executeButton.setDisable(false);
 
         statusLabel.setText(
                 "Interfaz reiniciada."
         );
     }
 
-    /**
-     * Inicia JavaFX.
-     *
-     * @param args argumentos de consola
-     */
     public static void main(String[] args) {
         launch(args);
     }
