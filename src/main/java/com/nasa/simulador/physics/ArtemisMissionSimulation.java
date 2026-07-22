@@ -89,7 +89,7 @@ public final class ArtemisMissionSimulation {
         );
 
         MissionEvents events =
-                new MissionEvents();
+        new MissionEvents(ignitionDate);
 
         events.attachTo(
                 propagator,
@@ -256,13 +256,52 @@ public final class ArtemisMissionSimulation {
                     lunarAltitudeKm
             );
 
-        } else {
+        } else if (events.hasLunarApproachCandidate()) {
 
-            System.out.println();
-            System.out.println(
-                    "[WARNING] No se registró un periapsis lunar."
-            );
-        }
+    SpacecraftState candidateState =
+            events.getLunarPeriapsisState();
+
+    double candidateHours =
+            candidateState.getDate()
+                    .durationFrom(ignitionDate)
+                    / MissionParameters.HOUR;
+
+    double candidateAltitudeKm =
+            events.getLunarPeriapsisAltitudeM()
+                    / MissionParameters.KM;
+
+    System.out.println();
+    System.out.println(
+            "[WARNING] Se encontró un mínimo post-TLI, "
+                    + "pero está demasiado lejos para "
+                    + "considerarse sobrevuelo lunar."
+    );
+
+    System.out.printf(
+            "Tiempo desde TLI: %.3f horas%n",
+            candidateHours
+    );
+
+    System.out.printf(
+            "Altitud aproximada sobre la Luna: %.3f km%n",
+            candidateAltitudeKm
+    );
+
+    System.out.printf(
+            "Límite aceptado por el prototipo: %.3f km%n",
+            MissionParameters
+                    .MAX_VALID_LUNAR_FLYBY_ALTITUDE_M
+                    / MissionParameters.KM
+    );
+
+} else {
+
+    System.out.println();
+    System.out.println(
+            "[WARNING] No se encontró un acercamiento "
+                    + "lunar posterior a la TLI."
+    );
+}
 
         if (events.hasReentry()) {
 

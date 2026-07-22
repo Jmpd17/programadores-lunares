@@ -11,7 +11,7 @@ import org.orekit.propagation.numerical.NumericalPropagator;
 import org.orekit.utils.IERSConventions;
 
 /**
- * Configura los modelos de fuerza requeridos por el motor orbital.
+ * Configura los modelos de fuerza del motor orbital.
  */
 public final class ForceModelFactory {
 
@@ -23,42 +23,52 @@ public final class ForceModelFactory {
     }
 
     /**
-     * Agrega al propagador los modelos de fuerza obligatorios.
+     * Agrega los modelos de fuerza mostrando mensajes.
      *
-     * @param propagator propagador numérico que será configurado
+     * @param propagator propagador numérico
      */
     public static void addRequiredForceModels(
             NumericalPropagator propagator
     ) {
 
-        System.out.println(
-                "[INFO] Configurando modelos de fuerza..."
+        addRequiredForceModels(
+                propagator,
+                true
         );
+    }
 
-        /*
-         * Marco terrestre rotatorio requerido para evaluar
-         * los armónicos gravitatorios.
-         */
-        Frame earthFixedFrame = FramesFactory.getITRF(
-                IERSConventions.IERS_2010,
-                false
-        );
+    /**
+     * Agrega los modelos de fuerza.
+     *
+     * @param propagator propagador numérico
+     * @param verbose indica si se muestran mensajes
+     */
+    static void addRequiredForceModels(
+            NumericalPropagator propagator,
+            boolean verbose
+    ) {
 
-        /*
-         * Campo gravitatorio terrestre normalizado de grado
-         * y orden 8x8.
-         */
+        if (verbose) {
+            System.out.println(
+                    "[INFO] Configurando modelos de fuerza..."
+            );
+        }
+
+        Frame earthFixedFrame =
+                FramesFactory.getITRF(
+                        IERSConventions.IERS_2010,
+                        false
+                );
+
         NormalizedSphericalHarmonicsProvider gravityProvider =
                 GravityFieldFactory.getNormalizedProvider(
                         GRAVITY_DEGREE,
                         GRAVITY_ORDER
                 );
 
-        /*
-         * Define explícitamente la atracción central newtoniana
-         * usando el valor μ del modelo gravitatorio cargado.
-         */
-        propagator.setMu(gravityProvider.getMu());
+        propagator.setMu(
+                gravityProvider.getMu()
+        );
 
         propagator.addForceModel(
                 new HolmesFeatherstoneAttractionModel(
@@ -67,9 +77,6 @@ public final class ForceModelFactory {
                 )
         );
 
-        /*
-         * Atracciones de tercer cuerpo.
-         */
         propagator.addForceModel(
                 new ThirdBodyAttraction(
                         CelestialBodyFactory.getMoon()
@@ -82,16 +89,19 @@ public final class ForceModelFactory {
                 )
         );
 
-        System.out.println(
-                "[SUCCESS] Gravedad terrestre 8x8 configurada."
-        );
+        if (verbose) {
 
-        System.out.println(
-                "[SUCCESS] Atracción gravitacional lunar configurada."
-        );
+            System.out.println(
+                    "[SUCCESS] Gravedad terrestre 8x8 configurada."
+            );
 
-        System.out.println(
-                "[SUCCESS] Atracción gravitacional solar configurada."
-        );
+            System.out.println(
+                    "[SUCCESS] Atracción gravitacional lunar configurada."
+            );
+
+            System.out.println(
+                    "[SUCCESS] Atracción gravitacional solar configurada."
+            );
+        }
     }
 }
