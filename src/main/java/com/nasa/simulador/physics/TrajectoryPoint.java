@@ -8,11 +8,10 @@ import org.orekit.propagation.SpacecraftState;
 import org.orekit.time.AbsoluteDate;
 
 /**
- * Representa una muestra de la trayectoria de la nave.
+ * Representa una muestra completa de la trayectoria.
  *
- * <p>Contiene los datos necesarios para representar
- * la posición de la nave y actualizar la telemetría
- * de la interfaz JavaFX.</p>
+ * <p>Contiene los datos que consume la interfaz JavaFX para
+ * dibujar la nave, mover la Luna y actualizar la telemetría.</p>
  */
 public final class TrajectoryPoint {
 
@@ -20,6 +19,7 @@ public final class TrajectoryPoint {
     private final double elapsedSeconds;
     private final Vector3D positionM;
     private final Vector3D velocityMps;
+    private final Vector3D moonPositionM;
     private final double earthAltitudeM;
     private final double moonDistanceM;
     private final double speedMps;
@@ -30,6 +30,7 @@ public final class TrajectoryPoint {
             double elapsedSeconds,
             Vector3D positionM,
             Vector3D velocityMps,
+            Vector3D moonPositionM,
             double earthAltitudeM,
             double moonDistanceM,
             double speedMps,
@@ -40,6 +41,7 @@ public final class TrajectoryPoint {
         this.elapsedSeconds = elapsedSeconds;
         this.positionM = positionM;
         this.velocityMps = velocityMps;
+        this.moonPositionM = moonPositionM;
         this.earthAltitudeM = earthAltitudeM;
         this.moonDistanceM = moonDistanceM;
         this.speedMps = speedMps;
@@ -50,10 +52,10 @@ public final class TrajectoryPoint {
      * Convierte un estado de Orekit en un punto de trayectoria.
      *
      * @param state estado actual de la nave
-     * @param startDate fecha de referencia de la trayectoria
+     * @param startDate fecha inicial de la trayectoria
      * @param earth modelo geométrico terrestre
      * @param moon cuerpo celeste lunar
-     * @return punto de trayectoria
+     * @return punto de trayectoria para la interfaz
      */
     public static TrajectoryPoint fromState(
             SpacecraftState state,
@@ -89,6 +91,7 @@ public final class TrajectoryPoint {
                 state.getDate().durationFrom(startDate),
                 position,
                 velocity,
+                moonPosition,
                 geodeticPoint.getAltitude(),
                 moonDistance,
                 velocity.getNorm(),
@@ -110,6 +113,10 @@ public final class TrajectoryPoint {
 
     public Vector3D getVelocityMps() {
         return velocityMps;
+    }
+
+    public Vector3D getMoonPositionM() {
+        return moonPositionM;
     }
 
     public double getEarthAltitudeM() {

@@ -1,5 +1,9 @@
 package com.nasa.simulador.ui;
 
+import java.util.List;
+
+import org.hipparchus.geometry.euclidean.threed.Vector3D;
+
 import com.nasa.simulador.OrekitConfig;
 import com.nasa.simulador.physics.ArtemisMissionSimulation;
 import com.nasa.simulador.physics.MissionParameters;
@@ -7,10 +11,12 @@ import com.nasa.simulador.physics.MissionSimulationResult;
 import com.nasa.simulador.physics.TLIParameters;
 import com.nasa.simulador.physics.TrajectoryPoint;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,18 +30,29 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
+import javafx.scene.shape.Polyline;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 /**
- * Interfaz principal del simulador Artemis II.
+ * Interfaz JavaFX del simulador Artemis II.
+ *
+ * <p>Ejecuta Orekit en segundo plano, precalcula la trayectoria
+ * y posteriormente la reproduce mediante AnimationTimer.</p>
  */
 public final class MissionApplication extends Application {
 
     private static final double SPACE_WIDTH = 900.0;
     private static final double SPACE_HEIGHT = 650.0;
+    private static final double VIEW_MARGIN = 55.0;
+
+    /**
+     * Aceleración base usada para que una misión de varios días
+     * pueda demostrarse en pocos minutos.
+     */
+    private static final double BASE_SIMULATION_SECONDS_PER_REAL_SECOND =
+            60.0;
 
     private TextField deltaVField;
     private TextField ignitionField;
@@ -47,14 +64,33 @@ public final class MissionApplication extends Application {
     private Label speedValue;
     private Label statusLabel;
 
-    private Circle spacecraft;
     private Button executeButton;
+    private Button playButton;
+    private Button pauseButton;
+    private Slider speedSlider;
+
+    private Pane spacePane;
+    private Group earthGroup;
+    private Group moonGroup;
+    private Group spacecraftGroup;
+    private Polyline trajectoryTrail;
 
     private MissionSimulationResult simulationResult;
     private Task<MissionSimulationResult> simulationTask;
+    private AnimationTimer animationTimer;
+
+    private int currentPointIndex;
+    private long lastFrameNanos;
+    private double playbackSimulationSeconds;
+
+    private double coordinateScale = 1.0;
+    private double coordinateOffsetX;
+    private double coordinateOffsetY;
 
     @Override
     public void start(Stage stage) {
+
+        createAnimationTimer();
 
         BorderPane root = new BorderPane();
 
@@ -81,6 +117,8 @@ public final class MissionApplication extends Application {
         stage.setMinHeight(700);
         stage.setScene(scene);
         stage.show();
+
+        resetVisualObjects();
     }
 
     private VBox createHeader() {
@@ -127,106 +165,160 @@ public final class MissionApplication extends Application {
 
     private Pane createSpaceView() {
 
-        Pane space = new Pane();
+        spacePane = new Pane();
 
-        space.setPrefSize(
+        spacePane.setPrefSize(
                 SPACE_WIDTH,
                 SPACE_HEIGHT
         );
 
-        space.setStyle(
+        spacePane.setMinSize(
+                620,
+                520
+        );
+
+        spacePane.setStyle(
                 "-fx-background-color: "
                         + "linear-gradient(to bottom, #02050a, #081525);"
         );
 
-        Circle earthGlow = new Circle(
-                195,
-                330,
-                92,
+        trajectoryTrail = new Polyline();
+        trajectoryTrail.setStroke(
+                Color.web("#57b7ed", 0.75)
+        );
+        trajectoryTrail.setStrokeWidth(1.7);
+
+        earthGroup = createEarthGroup();
+        moonGroup = createMoonGroup();
+        spacecraftGroup = createSpacecraftGroup();
+
+        spacePane.getChildren().addAll(
+                trajectoryTrail,
+                earthGroup,
+                moonGroup,
+                spacecraftGroup
+        );
+
+        return spacePane;
+    }
+
+    private Group createEarthGroup() {
+
+        Circle glow = new Circle(
+                0,
+                0,
+                82,
                 Color.web("#174f73", 0.35)
         );
 
         Circle earth = new Circle(
-                195,
-                330,
-                72,
+                0,
+                0,
+                63,
                 Color.web("#247db3")
         );
 
-        Circle earthLand = new Circle(
-                175,
-                310,
-                22,
+        Circle landOne = new Circle(
+                -18,
+                -15,
+                18,
                 Color.web("#4da66d")
         );
 
-        Label earthLabel = createSpaceLabel(
-                "TIERRA",
-                165,
-                420
+        Circle landTwo = new Circle(
+                21,
+                18,
+                11,
+                Color.web("#4da66d")
         );
 
-        Circle moonGlow = new Circle(
-                700,
-                220,
-                38,
+        Label label = createSpaceLabel(
+                "TIERRA",
+                -28,
+                78
+        );
+
+        return new Group(
+                glow,
+                earth,
+                landOne,
+                landTwo,
+                label
+        );
+    }
+
+    private Group createMoonGroup() {
+
+        Circle glow = new Circle(
+                0,
+                0,
+                34,
                 Color.web("#ffffff", 0.12)
         );
 
         Circle moon = new Circle(
-                700,
-                220,
-                25,
+                0,
+                0,
+                23,
                 Color.web("#c8ced4")
         );
 
-        Label moonLabel = createSpaceLabel(
-                "LUNA",
-                680,
-                270
+        Circle craterOne = new Circle(
+                -7,
+                -5,
+                4,
+                Color.web("#9ba2a8", 0.65)
         );
 
-        Line referencePath = new Line(
-                270,
-                320,
-                675,
-                225
-        );
-
-        referencePath.setStroke(
-                Color.web("#3e91c7", 0.45)
-        );
-
-        referencePath.getStrokeDashArray()
-                .addAll(10.0, 8.0);
-
-        spacecraft = new Circle(
-                300,
-                310,
+        Circle craterTwo = new Circle(
+                8,
                 7,
+                3,
+                Color.web("#9ba2a8", 0.65)
+        );
+
+        Label label = createSpaceLabel(
+                "LUNA",
+                -18,
+                34
+        );
+
+        return new Group(
+                glow,
+                moon,
+                craterOne,
+                craterTwo,
+                label
+        );
+    }
+
+    private Group createSpacecraftGroup() {
+
+        Circle spacecraft = new Circle(
+                0,
+                0,
+                6,
                 Color.web("#ffcc4d")
         );
 
-        Label spacecraftLabel = createSpaceLabel(
+        Circle glow = new Circle(
+                0,
+                0,
+                11,
+                Color.web("#ffcc4d", 0.18)
+        );
+
+        Label label = createSpaceLabel(
                 "NAVE",
-                290,
-                285
+                -15,
+                -27
         );
 
-        space.getChildren().addAll(
-                earthGlow,
-                earth,
-                earthLand,
-                earthLabel,
-                moonGlow,
-                moon,
-                moonLabel,
-                referencePath,
+        return new Group(
+                glow,
                 spacecraft,
-                spacecraftLabel
+                label
         );
-
-        return space;
     }
 
     private Label createSpaceLabel(
@@ -409,12 +501,12 @@ public final class MissionApplication extends Application {
                         "REPRODUCCIÓN"
                 );
 
-        Button playButton =
+        playButton =
                 new Button(
                         "Reproducir"
                 );
 
-        Button pauseButton =
+        pauseButton =
                 new Button(
                         "Pausar"
                 );
@@ -422,21 +514,29 @@ public final class MissionApplication extends Application {
         playButton.setDisable(true);
         pauseButton.setDisable(true);
 
-        Slider speedSlider =
+        playButton.setOnAction(
+                event -> playAnimation()
+        );
+
+        pauseButton.setOnAction(
+                event -> pauseAnimation()
+        );
+
+        speedSlider =
                 new Slider(
                         1,
                         1000,
-                        1
+                        100
                 );
 
         speedSlider.setShowTickLabels(true);
         speedSlider.setShowTickMarks(true);
         speedSlider.setMajorTickUnit(250);
-        speedSlider.setBlockIncrement(10);
+        speedSlider.setBlockIncrement(25);
 
         Label speedLabel =
                 new Label(
-                        "Escala de tiempo: 1x"
+                        "Escala de tiempo: 100x"
                 );
 
         speedLabel.setTextFill(
@@ -501,6 +601,9 @@ public final class MissionApplication extends Application {
 
         try {
 
+            pauseAnimation();
+            clearTrajectoryAnimation();
+
             double deltaV =
                     parseNumber(
                             deltaVField,
@@ -536,7 +639,7 @@ public final class MissionApplication extends Application {
                                     .DEFAULT_TLI_ISP_S
                     );
 
-            executeButton.setDisable(true);
+            setSimulationControlsDisabled(true);
 
             statusLabel.setText(
                     "Calculando trayectoria con Orekit..."
@@ -563,16 +666,15 @@ public final class MissionApplication extends Application {
                         simulationResult =
                                 simulationTask.getValue();
 
-                        executeButton.setDisable(false);
-
-                        showInitialTelemetry();
+                        setSimulationControlsDisabled(false);
+                        prepareAnimation();
 
                         statusLabel.setText(
                                 "Simulación completada: "
                                         + simulationResult
                                                 .getTrajectory()
                                                 .size()
-                                        + " puntos preparados."
+                                        + " puntos. Pulsa Reproducir."
                         );
                     }
             );
@@ -580,7 +682,7 @@ public final class MissionApplication extends Application {
             simulationTask.setOnFailed(
                     event -> {
 
-                        executeButton.setDisable(false);
+                        setSimulationControlsDisabled(false);
 
                         Throwable error =
                                 simulationTask.getException();
@@ -618,20 +720,343 @@ public final class MissionApplication extends Application {
         }
     }
 
-    private void showInitialTelemetry() {
+    private void setSimulationControlsDisabled(
+            boolean simulationRunning
+    ) {
+
+        executeButton.setDisable(
+                simulationRunning
+        );
+
+        playButton.setDisable(
+                simulationRunning || simulationResult == null
+        );
+
+        pauseButton.setDisable(
+                simulationRunning || simulationResult == null
+        );
+    }
+
+    private void prepareAnimation() {
+
+        List<TrajectoryPoint> points =
+                simulationResult.getTrajectory();
+
+        if (points.isEmpty()) {
+            throw new IllegalStateException(
+                    "La simulación no produjo puntos."
+            );
+        }
+
+        calculateCoordinateTransform(points);
+        clearTrajectoryAnimation();
+
+        currentPointIndex = 0;
+        playbackSimulationSeconds =
+                points.get(0).getElapsedSeconds();
+        lastFrameNanos = 0L;
+
+        updateSceneWithPoint(
+                points.get(0),
+                true
+        );
+
+        playButton.setDisable(false);
+        pauseButton.setDisable(false);
+    }
+
+    private void calculateCoordinateTransform(
+            List<TrajectoryPoint> points
+    ) {
+
+        double minX = 0.0;
+        double maxX = 0.0;
+        double minY = 0.0;
+        double maxY = 0.0;
+
+        for (TrajectoryPoint point : points) {
+
+            Vector3D spacecraftPosition =
+                    point.getPositionM();
+
+            Vector3D moonPosition =
+                    point.getMoonPositionM();
+
+            minX = Math.min(
+                    minX,
+                    Math.min(
+                            spacecraftPosition.getX(),
+                            moonPosition.getX()
+                    )
+            );
+
+            maxX = Math.max(
+                    maxX,
+                    Math.max(
+                            spacecraftPosition.getX(),
+                            moonPosition.getX()
+                    )
+            );
+
+            minY = Math.min(
+                    minY,
+                    Math.min(
+                            spacecraftPosition.getY(),
+                            moonPosition.getY()
+                    )
+            );
+
+            maxY = Math.max(
+                    maxY,
+                    Math.max(
+                            spacecraftPosition.getY(),
+                            moonPosition.getY()
+                    )
+            );
+        }
+
+        double rangeX =
+                Math.max(
+                        1.0,
+                        maxX - minX
+                );
+
+        double rangeY =
+                Math.max(
+                        1.0,
+                        maxY - minY
+                );
+
+        double width =
+                Math.max(
+                        SPACE_WIDTH,
+                        spacePane.getWidth()
+                );
+
+        double height =
+                Math.max(
+                        SPACE_HEIGHT,
+                        spacePane.getHeight()
+                );
+
+        double scaleX =
+                (width - 2.0 * VIEW_MARGIN)
+                        / rangeX;
+
+        double scaleY =
+                (height - 2.0 * VIEW_MARGIN)
+                        / rangeY;
+
+        coordinateScale =
+                Math.min(
+                        scaleX,
+                        scaleY
+                );
+
+        coordinateOffsetX =
+                VIEW_MARGIN - minX * coordinateScale;
+
+        coordinateOffsetY =
+                height - VIEW_MARGIN
+                        + minY * coordinateScale;
+
+        moveGroupToPosition(
+                earthGroup,
+                Vector3D.ZERO
+        );
+    }
+
+    private void createAnimationTimer() {
+
+        animationTimer =
+                new AnimationTimer() {
+
+                    @Override
+                    public void handle(long now) {
+
+                        if (simulationResult == null) {
+                            stop();
+                            return;
+                        }
+
+                        if (lastFrameNanos == 0L) {
+                            lastFrameNanos = now;
+                            return;
+                        }
+
+                        double realSeconds =
+                                (now - lastFrameNanos)
+                                        / 1_000_000_000.0;
+
+                        lastFrameNanos = now;
+
+                        double simulationRate =
+                                BASE_SIMULATION_SECONDS_PER_REAL_SECOND
+                                        * speedSlider.getValue();
+
+                        playbackSimulationSeconds +=
+                                realSeconds * simulationRate;
+
+                        advanceAnimationToTime(
+                                playbackSimulationSeconds
+                        );
+                    }
+                };
+    }
+
+    private void advanceAnimationToTime(
+            double targetElapsedSeconds
+    ) {
+
+        List<TrajectoryPoint> points =
+                simulationResult.getTrajectory();
+
+        while (currentPointIndex + 1
+                < points.size()
+                && points.get(currentPointIndex + 1)
+                        .getElapsedSeconds()
+                        <= targetElapsedSeconds) {
+
+            currentPointIndex++;
+
+            updateSceneWithPoint(
+                    points.get(currentPointIndex),
+                    true
+            );
+        }
+
+        if (currentPointIndex
+                >= points.size() - 1) {
+
+            pauseAnimation();
+
+            statusLabel.setText(
+                    "Reproducción finalizada. "
+                            + buildMissionSummary()
+            );
+        }
+    }
+
+    private void playAnimation() {
 
         if (simulationResult == null
                 || simulationResult
                         .getTrajectory()
                         .isEmpty()) {
 
+            statusLabel.setText(
+                    "Primero ejecuta la simulación."
+            );
             return;
         }
 
-        TrajectoryPoint point =
-                simulationResult
+        if (currentPointIndex
+                >= simulationResult
                         .getTrajectory()
-                        .get(0);
+                        .size() - 1) {
+
+            prepareAnimation();
+        }
+
+        lastFrameNanos = 0L;
+        animationTimer.start();
+
+        statusLabel.setText(
+                "Reproduciendo trayectoria..."
+        );
+    }
+
+    private void pauseAnimation() {
+
+        if (animationTimer != null) {
+            animationTimer.stop();
+        }
+
+        lastFrameNanos = 0L;
+
+        if (simulationResult != null) {
+            statusLabel.setText(
+                    "Reproducción pausada."
+            );
+        }
+    }
+
+    private void updateSceneWithPoint(
+            TrajectoryPoint point,
+            boolean appendTrail
+    ) {
+
+        double spacecraftX =
+                toScreenX(
+                        point.getPositionM()
+                );
+
+        double spacecraftY =
+                toScreenY(
+                        point.getPositionM()
+                );
+
+        spacecraftGroup.setLayoutX(
+                spacecraftX
+        );
+
+        spacecraftGroup.setLayoutY(
+                spacecraftY
+        );
+
+        moveGroupToPosition(
+                moonGroup,
+                point.getMoonPositionM()
+        );
+
+        if (appendTrail) {
+
+            trajectoryTrail
+                    .getPoints()
+                    .addAll(
+                            spacecraftX,
+                            spacecraftY
+                    );
+        }
+
+        updateTelemetry(point);
+    }
+
+    private void moveGroupToPosition(
+            Group group,
+            Vector3D position
+    ) {
+
+        group.setLayoutX(
+                toScreenX(position)
+        );
+
+        group.setLayoutY(
+                toScreenY(position)
+        );
+    }
+
+    private double toScreenX(
+            Vector3D position
+    ) {
+
+        return coordinateOffsetX
+                + position.getX()
+                * coordinateScale;
+    }
+
+    private double toScreenY(
+            Vector3D position
+    ) {
+
+        return coordinateOffsetY
+                - position.getY()
+                * coordinateScale;
+    }
+
+    private void updateTelemetry(
+            TrajectoryPoint point
+    ) {
 
         timeValue.setText(
                 String.format(
@@ -663,6 +1088,82 @@ public final class MissionApplication extends Application {
                         point.getSpeedMps()
                                 / MissionParameters.KM
                 )
+        );
+    }
+
+    private String buildMissionSummary() {
+
+        if (simulationResult == null) {
+            return "";
+        }
+
+        return String.format(
+                "Periapsis lunar: %s | Reentrada: %s",
+                simulationResult
+                        .getEvents()
+                        .hasLunarPeriapsis()
+                        ? "detectado"
+                        : "no detectado",
+                simulationResult
+                        .isReentryDetected()
+                        ? "detectada"
+                        : "no detectada"
+        );
+    }
+
+    private void clearTrajectoryAnimation() {
+
+        currentPointIndex = 0;
+        playbackSimulationSeconds = 0.0;
+        lastFrameNanos = 0L;
+
+        if (trajectoryTrail != null) {
+            trajectoryTrail
+                    .getPoints()
+                    .clear();
+        }
+    }
+
+    private void resetVisualObjects() {
+
+        double width =
+                Math.max(
+                        SPACE_WIDTH,
+                        spacePane == null
+                                ? SPACE_WIDTH
+                                : spacePane.getWidth()
+                );
+
+        double height =
+                Math.max(
+                        SPACE_HEIGHT,
+                        spacePane == null
+                                ? SPACE_HEIGHT
+                                : spacePane.getHeight()
+                );
+
+        earthGroup.setLayoutX(
+                width * 0.25
+        );
+
+        earthGroup.setLayoutY(
+                height * 0.55
+        );
+
+        moonGroup.setLayoutX(
+                width * 0.75
+        );
+
+        moonGroup.setLayoutY(
+                height * 0.35
+        );
+
+        spacecraftGroup.setLayoutX(
+                width * 0.34
+        );
+
+        spacecraftGroup.setLayoutY(
+                height * 0.52
         );
     }
 
@@ -820,6 +1321,8 @@ public final class MissionApplication extends Application {
 
     private void resetInterface() {
 
+        pauseAnimation();
+
         if (simulationTask != null
                 && simulationTask.isRunning()) {
 
@@ -869,10 +1372,12 @@ public final class MissionApplication extends Application {
                 "-- km/s"
         );
 
-        spacecraft.setCenterX(300);
-        spacecraft.setCenterY(310);
+        clearTrajectoryAnimation();
+        resetVisualObjects();
 
         executeButton.setDisable(false);
+        playButton.setDisable(true);
+        pauseButton.setDisable(true);
 
         statusLabel.setText(
                 "Interfaz reiniciada."
