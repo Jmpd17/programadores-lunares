@@ -112,4 +112,53 @@ public final class MissionParameters {
     private MissionParameters() {
         // Evita crear instancias.
     }
+
+    /**
+ * Tiempo mínimo después de la TLI para aceptar
+ * un posible acercamiento lunar.
+ */
+public static final double MIN_LUNAR_EVENT_DELAY_S =
+        24.0 * HOUR;
+
+/**
+ * Altitud máxima aceptada para considerar que ocurrió
+ * un sobrevuelo lunar válido.
+ *
+ * Este valor es un criterio académico del prototipo.
+ */
+public static final double MAX_VALID_LUNAR_FLYBY_ALTITUDE_M =
+        100_000.0 * KM;
+
+/**
+ * Duración utilizada para buscar el acercamiento lunar.
+ */
+public static final double TLI_SEARCH_DURATION_S =
+        7.0 * Constants.JULIAN_DAY;
+
+/**
+ * Intervalo utilizado para revisar la distancia lunar
+ * durante la búsqueda.
+ */
+public static final double TLI_SEARCH_SAMPLE_STEP_S =
+        1_800.0;
+
+/**
+ * Rango de delta-v que se probará automáticamente.
+ */
+public static final double TLI_SEARCH_MIN_DELTA_V_KM_S =
+        3.05;
+
+public static final double TLI_SEARCH_MAX_DELTA_V_KM_S =
+        3.25;
+
+public static final double TLI_SEARCH_DELTA_V_STEP_KM_S =
+        0.025;
+
+/**
+ * Cantidad de momentos de encendido probados
+ * durante una órbita de estacionamiento.
+ */
+public static final int TLI_SEARCH_IGNITION_SAMPLES =
+        18;
+
 }

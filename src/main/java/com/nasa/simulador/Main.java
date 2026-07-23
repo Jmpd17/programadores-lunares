@@ -1,9 +1,12 @@
 package com.nasa.simulador;
 
-import com.nasa.simulador.physics.TLIImpulseValidation;
+import com.nasa.simulador.physics.ArtemisMissionSimulation;
+import com.nasa.simulador.physics.MissionSimulationResult;
+import com.nasa.simulador.physics.TLIParameterSearch;
+import com.nasa.simulador.physics.TLIParameters;
 
 /**
- * Punto principal de entrada del simulador Artemis II.
+ * Punto principal del simulador Artemis II.
  */
 public final class Main {
 
@@ -12,9 +15,9 @@ public final class Main {
     }
 
     /**
-     * Inicializa Orekit y ejecuta la validación TLI.
+     * Busca los mejores parámetros TLI y ejecuta la misión.
      *
-     * @param args argumentos recibidos por consola
+     * @param args argumentos de consola
      */
     public static void main(String[] args) {
 
@@ -34,7 +37,30 @@ public final class Main {
 
             OrekitConfig.init();
 
-            TLIImpulseValidation.run();
+            TLIParameters bestParameters =
+                    TLIParameterSearch.findBest();
+
+            MissionSimulationResult result =
+                    ArtemisMissionSimulation.run(
+                            bestParameters
+                    );
+
+            System.out.println();
+            System.out.printf(
+                    "[INFO] Puntos para JavaFX: %d%n",
+                    result.getTrajectory().size()
+            );
+
+            System.out.printf(
+                    "[INFO] Periapsis lunar válido: %s%n",
+                    result.getEvents()
+                            .hasLunarPeriapsis()
+            );
+
+            System.out.printf(
+                    "[INFO] Reentrada detectada: %s%n",
+                    result.isReentryDetected()
+            );
 
         } catch (Exception e) {
 
