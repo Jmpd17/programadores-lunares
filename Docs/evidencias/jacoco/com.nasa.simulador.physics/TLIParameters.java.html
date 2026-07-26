@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TLIParameters.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Simulador de Misión Lunar</a> &gt; <a href="index.source.html" class="el_package">com.nasa.simulador.physics</a> &gt; <span class="el_source">TLIParameters.java</span></div><h1>TLIParameters.java</h1><pre class="source lang-java linenums">package com.nasa.simulador.physics;
+
+import org.hipparchus.geometry.euclidean.threed.Vector3D;
+
+/**
+ * Contiene los parámetros configurables de la maniobra TLI.
+ *
+ * &lt;p&gt;La dirección se expresa mediante el marco orbital VNC:&lt;/p&gt;
+ *
+ * &lt;ul&gt;
+ *     &lt;li&gt;X: dirección de la velocidad.&lt;/li&gt;
+ *     &lt;li&gt;Y: dirección del momento angular orbital.&lt;/li&gt;
+ *     &lt;li&gt;Z: dirección co-normal.&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+public final class TLIParameters {
+
+    private final double deltaVMagnitudeMps;
+    private final double ignitionOffsetSeconds;
+    private final Vector3D directionVnc;
+    private final double specificImpulseSeconds;
+
+    /**
+     * Construye los parámetros de una maniobra TLI.
+     *
+     * @param deltaVMagnitudeKmS magnitud del delta-v en km/s
+     * @param ignitionOffsetHours horas desde la inserción orbital
+     * @param directionX componente X en VNC
+     * @param directionY componente Y en VNC
+     * @param directionZ componente Z en VNC
+     * @param specificImpulseSeconds impulso específico en segundos
+     */
+    public TLIParameters(
+            double deltaVMagnitudeKmS,
+            double ignitionOffsetHours,
+            double directionX,
+            double directionY,
+            double directionZ,
+            double specificImpulseSeconds
+<span class="fc" id="L40">    ) {</span>
+
+<span class="fc" id="L42">        validatePositive(</span>
+                deltaVMagnitudeKmS,
+                &quot;La magnitud del delta-v&quot;
+        );
+
+<span class="fc" id="L47">        validateNonNegative(</span>
+                ignitionOffsetHours,
+                &quot;El desplazamiento del encendido&quot;
+        );
+
+<span class="fc" id="L52">        validatePositive(</span>
+                specificImpulseSeconds,
+                &quot;El impulso específico&quot;
+        );
+
+<span class="fc" id="L57">        Vector3D rawDirection = new Vector3D(</span>
+                directionX,
+                directionY,
+                directionZ
+        );
+
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (!Double.isFinite(rawDirection.getNorm())</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                || rawDirection.getNorm() == 0.0) {</span>
+
+<span class="fc" id="L66">            throw new IllegalArgumentException(</span>
+                    &quot;La dirección del delta-v no puede ser nula.&quot;
+            );
+        }
+
+<span class="fc" id="L71">        this.deltaVMagnitudeMps =</span>
+                deltaVMagnitudeKmS * MissionParameters.KM;
+
+<span class="fc" id="L74">        this.ignitionOffsetSeconds =</span>
+                ignitionOffsetHours * MissionParameters.HOUR;
+
+<span class="fc" id="L77">        this.directionVnc = rawDirection.normalize();</span>
+
+<span class="fc" id="L79">        this.specificImpulseSeconds =</span>
+                specificImpulseSeconds;
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Crea la configuración predeterminada del prototipo.
+     *
+     * @return parámetros TLI predeterminados
+     */
+    public static TLIParameters createDefault() {
+
+<span class="nc" id="L90">        return new TLIParameters(</span>
+                MissionParameters.DEFAULT_TLI_DELTA_V_KM_S,
+                MissionParameters.DEFAULT_TLI_IGNITION_OFFSET_H,
+                1.0,
+                0.0,
+                0.0,
+                MissionParameters.DEFAULT_TLI_ISP_S
+        );
+    }
+
+    public double getDeltaVMagnitudeMps() {
+<span class="fc" id="L101">        return deltaVMagnitudeMps;</span>
+    }
+
+    public double getIgnitionOffsetSeconds() {
+<span class="fc" id="L105">        return ignitionOffsetSeconds;</span>
+    }
+
+    public Vector3D getDirectionVnc() {
+<span class="fc" id="L109">        return directionVnc;</span>
+    }
+
+    public double getSpecificImpulseSeconds() {
+<span class="fc" id="L113">        return specificImpulseSeconds;</span>
+    }
+
+    private static void validatePositive(
+            double value,
+            String parameterName
+    ) {
+
+<span class="pc bpc" id="L121" title="1 of 4 branches missed.">        if (!Double.isFinite(value) || value &lt;= 0.0) {</span>
+<span class="fc" id="L122">            throw new IllegalArgumentException(</span>
+                    parameterName
+                            + &quot; debe ser un número mayor que cero.&quot;
+            );
+        }
+<span class="fc" id="L127">    }</span>
+
+    private static void validateNonNegative(
+            double value,
+            String parameterName
+    ) {
+
+<span class="pc bpc" id="L134" title="2 of 4 branches missed.">        if (!Double.isFinite(value) || value &lt; 0.0) {</span>
+<span class="nc" id="L135">            throw new IllegalArgumentException(</span>
+                    parameterName
+                            + &quot; debe ser un número igual o mayor que cero.&quot;
+            );
+        }
+<span class="fc" id="L140">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

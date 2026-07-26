@@ -1,0 +1,16 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Simulador de Misión Lunar,com.nasa.simulador.physics,MissionEvents.new EventHandler() {...},0,17,0,0,0,3,0,2,0,2
+Simulador de Misión Lunar,com.nasa.simulador.physics,MissionSimulationResult,0,26,0,0,0,9,0,5,0,5
+Simulador de Misión Lunar,com.nasa.simulador.physics,TLIManeuverFactory,0,37,0,0,0,15,0,2,0,2
+Simulador de Misión Lunar,com.nasa.simulador.physics,MissionParameters,0,4,0,0,0,2,0,1,0,1
+Simulador de Misión Lunar,com.nasa.simulador.physics,ParkingOrbitFactory,0,48,1,3,0,8,1,3,0,2
+Simulador de Misión Lunar,com.nasa.simulador.physics,TrajectoryPoint,9,94,0,0,3,36,3,8,3,8
+Simulador de Misión Lunar,com.nasa.simulador.physics,ArtemisMissionSimulation,77,339,5,3,23,101,4,4,0,4
+Simulador de Misión Lunar,com.nasa.simulador.physics,TrajectoryCollector,5,82,1,5,2,29,2,8,1,6
+Simulador de Misión Lunar,com.nasa.simulador.physics,MissionEvents,7,142,5,9,2,44,6,13,1,11
+Simulador de Misión Lunar,com.nasa.simulador.physics,ForceModelFactory,4,48,0,4,2,18,1,3,1,1
+Simulador de Misión Lunar,com.nasa.simulador.physics,EarthModelFactory,0,9,0,0,0,2,0,1,0,1
+Simulador de Misión Lunar,com.nasa.simulador.physics,NumericalPropagatorFactory,0,67,0,4,0,20,0,5,0,3
+Simulador de Misión Lunar,com.nasa.simulador.physics,TLIParameters,16,85,4,8,2,22,5,9,1,7
+Simulador de Misión Lunar,com.nasa.simulador.physics,MissionEvents.new EventHandler() {...},2,19,1,1,1,6,1,2,0,2
+Simulador de Misión Lunar,com.nasa.simulador,OrekitConfig,22,138,5,9,5,49,5,7,0,5

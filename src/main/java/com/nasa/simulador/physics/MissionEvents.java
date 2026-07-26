@@ -169,10 +169,6 @@ public final class MissionEvents {
                 state.getDate()
                         .durationFrom(ignitionDate);
 
-        /*
-         * Evita registrar mínimos anteriores al encendido
-         * o demasiado cercanos al inicio de la misión.
-         */
         if (secondsAfterTli
                 < MissionParameters.MIN_LUNAR_EVENT_DELAY_S) {
 
@@ -198,21 +194,10 @@ public final class MissionEvents {
         }
     }
 
-    /**
-     * Indica si se encontró algún mínimo post-TLI.
-     *
-     * @return verdadero cuando existe un candidato
-     */
     public boolean hasLunarApproachCandidate() {
         return lunarPeriapsisState != null;
     }
 
-    /**
-     * Indica si el acercamiento cumple el criterio
-     * definido para considerarse sobrevuelo lunar.
-     *
-     * @return verdadero cuando el periapsis es válido
-     */
     public boolean hasLunarPeriapsis() {
 
         return hasLunarApproachCandidate()
@@ -221,11 +206,6 @@ public final class MissionEvents {
                         .MAX_VALID_LUNAR_FLYBY_ALTITUDE_M;
     }
 
-    /**
-     * Indica si se detectó la reentrada.
-     *
-     * @return verdadero cuando la nave cruzó 120 km
-     */
     public boolean hasReentry() {
         return reentryState != null;
     }
@@ -242,11 +222,6 @@ public final class MissionEvents {
         return minimumMoonDistanceM;
     }
 
-    /**
-     * Calcula la altitud sobre la superficie lunar.
-     *
-     * @return altitud en metros o NaN
-     */
     public double getLunarPeriapsisAltitudeM() {
 
         if (!hasLunarApproachCandidate()) {

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TLIManeuverFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Simulador de Misión Lunar</a> &gt; <a href="index.source.html" class="el_package">com.nasa.simulador.physics</a> &gt; <span class="el_source">TLIManeuverFactory.java</span></div><h1>TLIManeuverFactory.java</h1><pre class="source lang-java linenums">package com.nasa.simulador.physics;
+
+import org.hipparchus.geometry.euclidean.threed.Vector3D;
+import org.orekit.attitudes.AttitudeProvider;
+import org.orekit.attitudes.LofOffset;
+import org.orekit.forces.maneuvers.ImpulseManeuver;
+import org.orekit.frames.LOFType;
+import org.orekit.orbits.Orbit;
+import org.orekit.propagation.events.DateDetector;
+import org.orekit.time.AbsoluteDate;
+
+/**
+ * Construye la maniobra impulsiva de inyección translunar.
+ */
+public final class TLIManeuverFactory {
+
+    private TLIManeuverFactory() {
+        // Evita crear instancias.
+    }
+
+    /**
+     * Construye una maniobra TLI configurable.
+     *
+     * @param initialOrbit órbita inicial
+     * @param parameters parámetros de la maniobra
+     * @return maniobra impulsiva configurada
+     */
+    public static ImpulseManeuver create(
+            Orbit initialOrbit,
+            TLIParameters parameters
+    ) {
+
+<span class="fc" id="L33">        AbsoluteDate ignitionDate =</span>
+<span class="fc" id="L34">                getIgnitionDate(</span>
+                        initialOrbit,
+                        parameters
+                );
+
+        /*
+         * El detector activa la maniobra en la fecha indicada.
+         */
+<span class="fc" id="L42">        DateDetector ignitionDetector =</span>
+                new DateDetector(ignitionDate);
+
+        /*
+         * El marco VNC permite expresar el delta-v con:
+         *
+         * X = dirección de la velocidad.
+         * Y = normal al plano orbital.
+         * Z = componente co-normal.
+         */
+<span class="fc" id="L52">        AttitudeProvider maneuverAttitude =</span>
+                new LofOffset(
+<span class="fc" id="L54">                        initialOrbit.getFrame(),</span>
+                        LOFType.VNC
+                );
+
+<span class="fc" id="L58">        Vector3D deltaVInVnc =</span>
+                parameters
+<span class="fc" id="L60">                        .getDirectionVnc()</span>
+<span class="fc" id="L61">                        .scalarMultiply(</span>
+                                parameters
+<span class="fc" id="L63">                                        .getDeltaVMagnitudeMps()</span>
+                        );
+
+<span class="fc" id="L66">        return new ImpulseManeuver(</span>
+                ignitionDetector,
+                maneuverAttitude,
+                deltaVInVnc,
+<span class="fc" id="L70">                parameters.getSpecificImpulseSeconds()</span>
+        );
+    }
+
+    /**
+     * Calcula la fecha de encendido.
+     *
+     * @param initialOrbit órbita inicial
+     * @param parameters parámetros TLI
+     * @return fecha absoluta del encendido
+     */
+    public static AbsoluteDate getIgnitionDate(
+            Orbit initialOrbit,
+            TLIParameters parameters
+    ) {
+
+<span class="fc" id="L86">        return initialOrbit</span>
+<span class="fc" id="L87">                .getDate()</span>
+<span class="fc" id="L88">                .shiftedBy(</span>
+<span class="fc" id="L89">                        parameters.getIgnitionOffsetSeconds()</span>
+                );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

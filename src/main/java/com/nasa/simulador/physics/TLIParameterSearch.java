@@ -1,18 +1,27 @@
 package com.nasa.simulador.physics;
 
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
+import org.hipparchus.ode.events.Action;
 import org.orekit.bodies.CelestialBody;
 import org.orekit.bodies.CelestialBodyFactory;
+import org.orekit.bodies.OneAxisEllipsoid;
 import org.orekit.forces.maneuvers.ImpulseManeuver;
 import org.orekit.orbits.Orbit;
 import org.orekit.propagation.SpacecraftState;
+import org.orekit.propagation.events.AltitudeDetector;
+import org.orekit.propagation.events.EventDetector;
+import org.orekit.propagation.events.handlers.EventHandler;
 import org.orekit.propagation.numerical.NumericalPropagator;
 import org.orekit.propagation.sampling.OrekitFixedStepHandler;
 import org.orekit.time.AbsoluteDate;
 
 /**
- * Busca automáticamente parámetros TLI que produzcan
- * el menor acercamiento posible a la Luna.
+ * Busca automaticamente parametros TLI.
+ *
+ * La seleccion prioriza:
+ * 1. Sobrevuelo lunar valido.
+ * 2. Reentrada terrestre descendente a 120 km.
+ * 3. Menor altitud lunar entre los candidatos completos.
  */
 public final class TLIParameterSearch {
 
@@ -20,12 +29,6 @@ public final class TLIParameterSearch {
         // Evita crear instancias.
     }
 
-    /**
-     * Prueba diferentes magnitudes de delta-v y épocas
-     * de encendido.
-     *
-     * @return mejores parámetros encontrados
-     */
     public static TLIParameters findBest() {
 
         System.out.println();
@@ -33,7 +36,7 @@ public final class TLIParameterSearch {
                 "=================================================="
         );
         System.out.println(
-                "       BÚSQUEDA AUTOMÁTICA DE TLI"
+                "       BUSQUEDA AUTOMATICA DE TLI"
         );
         System.out.println(
                 "=================================================="
@@ -45,19 +48,28 @@ public final class TLIParameterSearch {
         CelestialBody moon =
                 CelestialBodyFactory.getMoon();
 
+        OneAxisEllipsoid earth =
+                EarthModelFactory.createWgs84Earth();
+
         double orbitalPeriodHours =
                 initialOrbit.getKeplerianPeriod()
                         / MissionParameters.HOUR;
 
-        TLIParameters bestParameters = null;
-
-        double bestAltitudeM =
+        TLIParameters bestLunarParameters = null;
+        double bestLunarAltitudeM =
                 Double.POSITIVE_INFINITY;
+        double bestLunarApproachHours =
+                Double.NaN;
 
-        double bestApproachHours =
+        TLIParameters bestCompleteParameters = null;
+        double bestCompleteAltitudeM =
+                Double.POSITIVE_INFINITY;
+        double bestCompleteApproachHours =
                 Double.NaN;
 
         int candidateNumber = 0;
+        int validLunarCandidates = 0;
+        int reentryCandidates = 0;
 
         for (
                 int ignitionIndex = 0;
@@ -99,7 +111,7 @@ public final class TLIParameterSearch {
                                         .DEFAULT_TLI_ISP_S
                         );
 
-                NumericalPropagator propagator =
+                NumericalPropagator lunarPropagator =
                         NumericalPropagatorFactory
                                 .createQuiet(initialOrbit);
 
@@ -109,7 +121,7 @@ public final class TLIParameterSearch {
                                 candidate
                         );
 
-                propagator.addEventDetector(
+                lunarPropagator.addEventDetector(
                         maneuver
                 );
 
@@ -125,13 +137,13 @@ public final class TLIParameterSearch {
                                 moon
                         );
 
-                propagator.getMultiplexer().add(
+                lunarPropagator.getMultiplexer().add(
                         MissionParameters
                                 .TLI_SEARCH_SAMPLE_STEP_S,
                         tracker
                 );
 
-                propagator.propagate(
+                lunarPropagator.propagate(
                         ignitionDate.shiftedBy(
                                 MissionParameters
                                         .TLI_SEARCH_DURATION_S
@@ -147,36 +159,103 @@ public final class TLIParameterSearch {
                                 - MissionParameters
                                         .MOON_RADIUS_M;
 
-                if (altitudeM < bestAltitudeM) {
+                double approachHours =
+                        tracker.getClosestState()
+                                .getDate()
+                                .durationFrom(ignitionDate)
+                                / MissionParameters.HOUR;
 
-                    bestAltitudeM = altitudeM;
+                if (altitudeM < bestLunarAltitudeM) {
 
-                    bestParameters = candidate;
-
-                    bestApproachHours =
-                            tracker.getClosestState()
-                                    .getDate()
-                                    .durationFrom(ignitionDate)
-                                    / MissionParameters.HOUR;
+                    bestLunarAltitudeM = altitudeM;
+                    bestLunarParameters = candidate;
+                    bestLunarApproachHours =
+                            approachHours;
 
                     System.out.printf(
-                            "[MEJOR] Δv %.3f km/s | "
+                            "[MEJOR LUNAR] dv %.3f km/s | "
                                     + "encendido %.3f h | "
-                                    + "altitud lunar %.3f km | "
+                                    + "altitud %.3f km | "
                                     + "tiempo %.3f h%n",
                             deltaV,
                             ignitionHours,
-                            bestAltitudeM
-                                    / MissionParameters.KM,
-                            bestApproachHours
+                            altitudeM / MissionParameters.KM,
+                            approachHours
+                    );
+                }
+
+                boolean validLunarFlyby =
+                        altitudeM <=
+                                MissionParameters
+                                        .MAX_VALID_LUNAR_FLYBY_ALTITUDE_M;
+
+                if (!validLunarFlyby) {
+                    continue;
+                }
+
+                validLunarCandidates++;
+
+                boolean hasReentry =
+                        detectsReentry(
+                                initialOrbit,
+                                earth,
+                                candidate
+                        );
+
+                if (!hasReentry) {
+                    continue;
+                }
+
+                reentryCandidates++;
+
+                if (altitudeM < bestCompleteAltitudeM) {
+
+                    bestCompleteAltitudeM = altitudeM;
+                    bestCompleteParameters = candidate;
+                    bestCompleteApproachHours =
+                            approachHours;
+
+                    System.out.printf(
+                            "[RETORNO] dv %.3f km/s | "
+                                    + "encendido %.3f h | "
+                                    + "altitud lunar %.3f km%n",
+                            deltaV,
+                            ignitionHours,
+                            altitudeM / MissionParameters.KM
                     );
                 }
             }
         }
 
-        if (bestParameters == null) {
+        TLIParameters selectedParameters;
+        double selectedAltitudeM;
+        double selectedApproachHours;
+        boolean completeMissionFound;
+
+        if (bestCompleteParameters != null) {
+
+            selectedParameters =
+                    bestCompleteParameters;
+            selectedAltitudeM =
+                    bestCompleteAltitudeM;
+            selectedApproachHours =
+                    bestCompleteApproachHours;
+            completeMissionFound = true;
+
+        } else {
+
+            selectedParameters =
+                    bestLunarParameters;
+            selectedAltitudeM =
+                    bestLunarAltitudeM;
+            selectedApproachHours =
+                    bestLunarApproachHours;
+            completeMissionFound = false;
+        }
+
+        if (selectedParameters == null) {
             throw new IllegalStateException(
-                    "La búsqueda no produjo ningún candidato."
+                    "La busqueda no produjo ningun candidato."
             );
         }
 
@@ -191,32 +270,115 @@ public final class TLIParameterSearch {
         );
 
         System.out.printf(
+                "Sobrevuelos lunares validos: %d%n",
+                validLunarCandidates
+        );
+
+        System.out.printf(
+                "Candidatos con reentrada: %d%n",
+                reentryCandidates
+        );
+
+        System.out.printf(
                 "Delta-v seleccionado: %.3f km/s%n",
-                bestParameters.getDeltaVMagnitudeMps()
+                selectedParameters
+                        .getDeltaVMagnitudeMps()
                         / MissionParameters.KM
         );
 
         System.out.printf(
-                "Momento de encendido: %.3f horas%n",
-                bestParameters.getIgnitionOffsetSeconds()
+                "Momento de encendido: %.6f horas%n",
+                selectedParameters
+                        .getIgnitionOffsetSeconds()
                         / MissionParameters.HOUR
         );
 
         System.out.printf(
                 "Altitud lunar estimada: %.3f km%n",
-                bestAltitudeM / MissionParameters.KM
+                selectedAltitudeM
+                        / MissionParameters.KM
         );
 
         System.out.printf(
                 "Tiempo aproximado de llegada: %.3f horas%n",
-                bestApproachHours
+                selectedApproachHours
         );
+
+        System.out.printf(
+                "Mision completa encontrada: %s%n",
+                completeMissionFound
+        );
+
+        if (!completeMissionFound) {
+            System.out.println(
+                    "[WARNING] No se encontro reentrada "
+                            + "en la cuadricula actual."
+            );
+        }
 
         System.out.println(
-                "[SUCCESS] Búsqueda automática completada."
+                "[SUCCESS] Busqueda automatica completada."
         );
 
-        return bestParameters;
+        return selectedParameters;
+    }
+
+    /**
+     * Ejecuta la propagacion larga y comprueba si el
+     * candidato cruza descendentemente los 120 km.
+     */
+    private static boolean detectsReentry(
+            Orbit initialOrbit,
+            OneAxisEllipsoid earth,
+            TLIParameters candidate
+    ) {
+
+        NumericalPropagator propagator =
+                NumericalPropagatorFactory
+                        .createQuiet(initialOrbit);
+
+        ImpulseManeuver maneuver =
+                TLIManeuverFactory.create(
+                        initialOrbit,
+                        candidate
+                );
+
+        propagator.addEventDetector(
+                maneuver
+        );
+
+        AbsoluteDate ignitionDate =
+                TLIManeuverFactory.getIgnitionDate(
+                        initialOrbit,
+                        candidate
+                );
+
+        ReentryTracker reentryTracker =
+                new ReentryTracker();
+
+        AltitudeDetector reentryDetector =
+                new AltitudeDetector(
+                        MissionParameters.EVENT_MAX_CHECK_S,
+                        MissionParameters.EVENT_THRESHOLD_S,
+                        MissionParameters
+                                .REENTRY_INTERFACE_ALTITUDE_M,
+                        earth
+                ).withHandler(
+                        reentryTracker
+                );
+
+        propagator.addEventDetector(
+                reentryDetector
+        );
+
+        propagator.propagate(
+                ignitionDate.shiftedBy(
+                        MissionParameters
+                                .MAX_MISSION_DURATION_S
+                )
+        );
+
+        return reentryTracker.hasReentry();
     }
 
     /**
@@ -287,6 +449,35 @@ public final class TLIParameterSearch {
 
         private SpacecraftState getClosestState() {
             return closestState;
+        }
+    }
+
+    /**
+     * Registra solamente el cruce descendente
+     * de la interfaz de reentrada.
+     */
+    private static final class ReentryTracker
+            implements EventHandler {
+
+        private boolean reentry;
+
+        @Override
+        public Action eventOccurred(
+                SpacecraftState state,
+                EventDetector detector,
+                boolean increasing
+        ) {
+
+            if (increasing) {
+                return Action.CONTINUE;
+            }
+
+            reentry = true;
+            return Action.STOP;
+        }
+
+        private boolean hasReentry() {
+            return reentry;
         }
     }
 }
