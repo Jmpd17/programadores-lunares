@@ -56,17 +56,6 @@ El proyecto mantiene una arquitectura modular que separa la lógica de simulaci�
 
 # 🎯 Objetivos del Proyecto
 
-## Entregable #4
-
-- Implementar el simulador utilizando Orekit.
-- Integrar la trayectoria TLI.
-- Incorporar una interfaz gráfica JavaFX.
-- Visualizar Tierra, Luna y nave.
-- Mostrar la trayectoria orbital.
-- Implementar panel de telemetría.
-- Agregar parámetros configurables.
-- Implementar controles de simulación.
-
 ## Entregable #5
 
 - Desarrollar pruebas unitarias con JUnit 5.
@@ -141,7 +130,7 @@ programadores-lunares/
 
 La carpeta **target/** no forma parte del repositorio debido a que contiene archivos generados automáticamente por Maven y se encuentra excluida mediante **.gitignore**.
 
----# 📚 Componentes principales
+# 📚 Componentes principales
 
 ## Main.java
 
