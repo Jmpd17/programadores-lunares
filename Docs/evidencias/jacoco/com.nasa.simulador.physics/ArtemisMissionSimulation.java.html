@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ArtemisMissionSimulation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Simulador de Misión Lunar</a> &gt; <a href="index.source.html" class="el_package">com.nasa.simulador.physics</a> &gt; <span class="el_source">ArtemisMissionSimulation.java</span></div><h1>ArtemisMissionSimulation.java</h1><pre class="source lang-java linenums">package com.nasa.simulador.physics;
+
+import java.util.List;
+import java.util.Objects;
+
+import org.orekit.bodies.CelestialBody;
+import org.orekit.bodies.CelestialBodyFactory;
+import org.orekit.bodies.OneAxisEllipsoid;
+import org.orekit.forces.maneuvers.ImpulseManeuver;
+import org.orekit.orbits.Orbit;
+import org.orekit.propagation.SpacecraftState;
+import org.orekit.propagation.numerical.NumericalPropagator;
+import org.orekit.time.AbsoluteDate;
+
+/**
+ * Ejecuta la canalización completa del motor orbital Artemis II.
+ */
+public final class ArtemisMissionSimulation {
+
+    private ArtemisMissionSimulation() {
+        // Evita crear instancias.
+    }
+
+    /**
+     * Ejecuta la misión con la altitud predeterminada.
+     *
+     * @param tliParameters parámetros configurables de la TLI
+     * @return resultado completo de la misión
+     */
+    public static MissionSimulationResult run(
+            TLIParameters tliParameters
+    ) {
+
+<span class="fc" id="L34">        return run(</span>
+                tliParameters,
+                MissionParameters.PARKING_ALTITUDE_M
+                        / MissionParameters.KM
+        );
+    }
+
+    /**
+     * Ejecuta la misión con parámetros configurables.
+     *
+     * @param tliParameters parámetros configurables de la TLI
+     * @param parkingAltitudeKm altitud inicial en kilómetros
+     * @return resultado completo de la misión
+     */
+    public static MissionSimulationResult run(
+            TLIParameters tliParameters,
+            double parkingAltitudeKm
+    ) {
+
+<span class="fc" id="L53">        Objects.requireNonNull(</span>
+                tliParameters,
+                &quot;Los parámetros TLI no pueden ser nulos.&quot;
+        );
+
+<span class="fc" id="L58">        System.out.println();</span>
+<span class="fc" id="L59">        System.out.println(</span>
+                &quot;==================================================&quot;
+        );
+<span class="fc" id="L62">        System.out.println(</span>
+                &quot;       SIMULACION COMPLETA ARTEMIS II&quot;
+        );
+<span class="fc" id="L65">        System.out.println(</span>
+                &quot;==================================================&quot;
+        );
+
+<span class="fc" id="L69">        Orbit initialOrbit =</span>
+<span class="fc" id="L70">                ParkingOrbitFactory.createOrbit(</span>
+                        parkingAltitudeKm
+                );
+
+<span class="fc" id="L74">        NumericalPropagator propagator =</span>
+<span class="fc" id="L75">                NumericalPropagatorFactory.create(</span>
+                        initialOrbit
+                );
+
+<span class="fc" id="L79">        AbsoluteDate ignitionDate =</span>
+<span class="fc" id="L80">                TLIManeuverFactory.getIgnitionDate(</span>
+                        initialOrbit,
+                        tliParameters
+                );
+
+<span class="fc" id="L85">        ImpulseManeuver tliManeuver =</span>
+<span class="fc" id="L86">                TLIManeuverFactory.create(</span>
+                        initialOrbit,
+                        tliParameters
+                );
+
+<span class="fc" id="L91">        propagator.addEventDetector(</span>
+                tliManeuver
+        );
+
+        OneAxisEllipsoid earth =
+<span class="fc" id="L96">                EarthModelFactory.createWgs84Earth();</span>
+
+        CelestialBody moon =
+<span class="fc" id="L99">                CelestialBodyFactory.getMoon();</span>
+
+<span class="fc" id="L101">        TrajectoryCollector collector =</span>
+                new TrajectoryCollector(
+                        ignitionDate,
+                        earth,
+                        moon
+                );
+
+<span class="fc" id="L108">        propagator.getMultiplexer().add(</span>
+                MissionParameters.TRAJECTORY_SAMPLE_STEP_S,
+                collector
+        );
+
+<span class="fc" id="L113">        MissionEvents events =</span>
+                new MissionEvents(ignitionDate);
+
+<span class="fc" id="L116">        events.attachTo(</span>
+                propagator,
+                earth
+        );
+
+<span class="fc" id="L121">        AbsoluteDate maximumMissionDate =</span>
+<span class="fc" id="L122">                ignitionDate.shiftedBy(</span>
+                        MissionParameters.MAX_MISSION_DURATION_S
+                );
+
+<span class="fc" id="L126">        System.out.println();</span>
+<span class="fc" id="L127">        System.out.printf(</span>
+                &quot;[INFO] Órbita inicial: %.3f km%n&quot;,
+<span class="fc" id="L129">                parkingAltitudeKm</span>
+        );
+<span class="fc" id="L131">        System.out.printf(</span>
+                &quot;[INFO] Delta-v TLI: %.3f km/s%n&quot;,
+<span class="fc" id="L133">                tliParameters.getDeltaVMagnitudeMps()</span>
+                        / MissionParameters.KM
+        );
+<span class="fc" id="L136">        System.out.printf(</span>
+                &quot;[INFO] Encendido TLI: %.3f horas después del inicio%n&quot;,
+<span class="fc" id="L138">                tliParameters.getIgnitionOffsetSeconds()</span>
+                        / MissionParameters.HOUR
+        );
+<span class="fc" id="L141">        System.out.printf(</span>
+                &quot;[INFO] Intervalo de muestreo: %.0f segundos%n&quot;,
+<span class="fc" id="L143">                MissionParameters.TRAJECTORY_SAMPLE_STEP_S</span>
+        );
+<span class="fc" id="L145">        System.out.println(</span>
+                &quot;[INFO] Ejecutando propagación completa...&quot;
+        );
+
+<span class="fc" id="L149">        SpacecraftState finalState =</span>
+<span class="fc" id="L150">                propagator.propagate(</span>
+                        maximumMissionDate
+                );
+
+<span class="fc" id="L154">        List&lt;TrajectoryPoint&gt; trajectory =</span>
+<span class="fc" id="L155">                collector.getPoints();</span>
+
+<span class="fc" id="L157">        validateTrajectory(trajectory);</span>
+
+<span class="fc" id="L159">        MissionSimulationResult result =</span>
+                new MissionSimulationResult(
+                        trajectory,
+                        finalState,
+                        events
+                );
+
+<span class="fc" id="L166">        printReport(</span>
+                result,
+                ignitionDate
+        );
+
+<span class="fc" id="L171">        return result;</span>
+    }
+
+    private static void validateTrajectory(
+            List&lt;TrajectoryPoint&gt; trajectory
+    ) {
+
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (trajectory.size()</span>
+                &lt; MissionParameters.MIN_TRAJECTORY_POINTS) {
+
+<span class="nc" id="L181">            throw new IllegalStateException(</span>
+                    &quot;La trayectoria contiene solamente &quot;
+<span class="nc" id="L183">                            + trajectory.size()</span>
+                            + &quot; puntos. Se requieren al menos &quot;
+                            + MissionParameters.MIN_TRAJECTORY_POINTS
+                            + &quot;.&quot;
+            );
+        }
+
+<span class="fc" id="L190">        System.out.println();</span>
+<span class="fc" id="L191">        System.out.println(</span>
+                &quot;[OK] Trayectoria capturada correctamente.&quot;
+        );
+<span class="fc" id="L194">        System.out.println(</span>
+                &quot;[OK] Cantidad mínima de 500 puntos superada.&quot;
+        );
+<span class="fc" id="L197">    }</span>
+
+    private static void printReport(
+            MissionSimulationResult result,
+            AbsoluteDate ignitionDate
+    ) {
+
+<span class="fc" id="L204">        List&lt;TrajectoryPoint&gt; trajectory =</span>
+<span class="fc" id="L205">                result.getTrajectory();</span>
+
+<span class="fc" id="L207">        MissionEvents events =</span>
+<span class="fc" id="L208">                result.getEvents();</span>
+
+<span class="fc" id="L210">        SpacecraftState finalState =</span>
+<span class="fc" id="L211">                result.getFinalState();</span>
+
+<span class="fc" id="L213">        double propagatedHours =</span>
+<span class="fc" id="L214">                finalState.getDate()</span>
+<span class="fc" id="L215">                        .durationFrom(ignitionDate)</span>
+                        / MissionParameters.HOUR;
+
+<span class="fc" id="L218">        System.out.println();</span>
+<span class="fc" id="L219">        System.out.println(</span>
+                &quot;================ INFORME FINAL ================&quot;
+        );
+<span class="fc" id="L222">        System.out.printf(</span>
+                &quot;Puntos de trayectoria: %d%n&quot;,
+<span class="fc" id="L224">                trajectory.size()</span>
+        );
+<span class="fc" id="L226">        System.out.printf(</span>
+                &quot;Tiempo propagado: %.3f horas%n&quot;,
+<span class="fc" id="L228">                propagatedHours</span>
+        );
+<span class="fc" id="L230">        System.out.printf(</span>
+                &quot;Fecha final: %s%n&quot;,
+<span class="fc" id="L232">                finalState.getDate()</span>
+        );
+<span class="fc" id="L234">        System.out.printf(</span>
+                &quot;Masa final: %.3f kg%n&quot;,
+<span class="fc" id="L236">                finalState.getMass()</span>
+        );
+
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">        if (events.hasLunarPeriapsis()) {</span>
+
+<span class="fc" id="L241">            SpacecraftState lunarState =</span>
+<span class="fc" id="L242">                    events.getLunarPeriapsisState();</span>
+
+<span class="fc" id="L244">            double lunarEventHours =</span>
+<span class="fc" id="L245">                    lunarState.getDate()</span>
+<span class="fc" id="L246">                            .durationFrom(ignitionDate)</span>
+                            / MissionParameters.HOUR;
+
+<span class="fc" id="L249">            double lunarAltitudeKm =</span>
+<span class="fc" id="L250">                    events.getLunarPeriapsisAltitudeM()</span>
+                            / MissionParameters.KM;
+
+<span class="fc" id="L253">            System.out.println();</span>
+<span class="fc" id="L254">            System.out.println(</span>
+                    &quot;[OK] Periapsis lunar registrado.&quot;
+            );
+<span class="fc" id="L257">            System.out.printf(</span>
+                    &quot;Fecha del periapsis lunar: %s%n&quot;,
+<span class="fc" id="L259">                    lunarState.getDate()</span>
+            );
+<span class="fc" id="L261">            System.out.printf(</span>
+                    &quot;Tiempo desde TLI: %.3f horas%n&quot;,
+<span class="fc" id="L263">                    lunarEventHours</span>
+            );
+<span class="fc" id="L265">            System.out.printf(</span>
+                    &quot;Altitud aproximada sobre la Luna: %.3f km%n&quot;,
+<span class="fc" id="L267">                    lunarAltitudeKm</span>
+            );
+
+<span class="pc bnc" id="L270" title="All 2 branches missed.">        } else if (events.hasLunarApproachCandidate()) {</span>
+
+<span class="nc" id="L272">            SpacecraftState candidateState =</span>
+<span class="nc" id="L273">                    events.getLunarPeriapsisState();</span>
+
+<span class="nc" id="L275">            double candidateHours =</span>
+<span class="nc" id="L276">                    candidateState.getDate()</span>
+<span class="nc" id="L277">                            .durationFrom(ignitionDate)</span>
+                            / MissionParameters.HOUR;
+
+<span class="nc" id="L280">            double candidateAltitudeKm =</span>
+<span class="nc" id="L281">                    events.getLunarPeriapsisAltitudeM()</span>
+                            / MissionParameters.KM;
+
+<span class="nc" id="L284">            System.out.println();</span>
+<span class="nc" id="L285">            System.out.println(</span>
+                    &quot;[WARNING] Se encontró un mínimo post-TLI, &quot;
+                            + &quot;pero está demasiado lejos para &quot;
+                            + &quot;considerarse sobrevuelo lunar.&quot;
+            );
+<span class="nc" id="L290">            System.out.printf(</span>
+                    &quot;Tiempo desde TLI: %.3f horas%n&quot;,
+<span class="nc" id="L292">                    candidateHours</span>
+            );
+<span class="nc" id="L294">            System.out.printf(</span>
+                    &quot;Altitud aproximada sobre la Luna: %.3f km%n&quot;,
+<span class="nc" id="L296">                    candidateAltitudeKm</span>
+            );
+<span class="nc" id="L298">            System.out.printf(</span>
+                    &quot;Límite aceptado por el prototipo: %.3f km%n&quot;,
+<span class="nc" id="L300">                    MissionParameters</span>
+                            .MAX_VALID_LUNAR_FLYBY_ALTITUDE_M
+                            / MissionParameters.KM
+            );
+
+<span class="nc" id="L305">        } else {</span>
+
+<span class="nc" id="L307">            System.out.println();</span>
+<span class="nc" id="L308">            System.out.println(</span>
+                    &quot;[WARNING] No se encontró un acercamiento &quot;
+                            + &quot;lunar posterior a la TLI.&quot;
+            );
+        }
+
+<span class="pc bpc" id="L314" title="1 of 2 branches missed.">        if (events.hasReentry()) {</span>
+
+<span class="fc" id="L316">            SpacecraftState reentryState =</span>
+<span class="fc" id="L317">                    events.getReentryState();</span>
+
+<span class="fc" id="L319">            double reentryHours =</span>
+<span class="fc" id="L320">                    reentryState.getDate()</span>
+<span class="fc" id="L321">                            .durationFrom(ignitionDate)</span>
+                            / MissionParameters.HOUR;
+
+<span class="fc" id="L324">            System.out.println();</span>
+<span class="fc" id="L325">            System.out.println(</span>
+                    &quot;[OK] Interfaz de reentrada registrada.&quot;
+            );
+<span class="fc" id="L328">            System.out.printf(</span>
+                    &quot;Fecha de reentrada: %s%n&quot;,
+<span class="fc" id="L330">                    reentryState.getDate()</span>
+            );
+<span class="fc" id="L332">            System.out.printf(</span>
+                    &quot;Tiempo desde TLI: %.3f horas%n&quot;,
+<span class="fc" id="L334">                    reentryHours</span>
+            );
+<span class="fc" id="L336">            System.out.printf(</span>
+                    &quot;Altitud de interfaz: %.3f km%n&quot;,
+<span class="fc" id="L338">                    MissionParameters.REENTRY_INTERFACE_ALTITUDE_M</span>
+                            / MissionParameters.KM
+            );
+
+<span class="fc" id="L342">        } else {</span>
+
+<span class="nc" id="L344">            System.out.println();</span>
+<span class="nc" id="L345">            System.out.println(</span>
+                    &quot;[WARNING] La trayectoria no cruzó &quot;
+                            + &quot;los 120 km durante el tiempo máximo.&quot;
+            );
+<span class="nc" id="L349">            System.out.println(</span>
+                    &quot;[INFO] El detector funciona, pero la &quot;
+                            + &quot;geometría TLI debe ajustarse para &quot;
+                            + &quot;producir una reentrada real.&quot;
+            );
+        }
+
+<span class="fc" id="L356">        System.out.println();</span>
+<span class="fc" id="L357">        System.out.println(</span>
+                &quot;[SUCCESS] Canalización orbital ejecutada.&quot;
+        );
+<span class="fc" id="L360">        System.out.println(</span>
+                &quot;=================================================&quot;
+        );
+<span class="fc" id="L363">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

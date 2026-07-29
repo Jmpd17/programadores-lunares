@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrajectoryCollector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Simulador de Misión Lunar</a> &gt; <a href="index.source.html" class="el_package">com.nasa.simulador.physics</a> &gt; <span class="el_source">TrajectoryCollector.java</span></div><h1>TrajectoryCollector.java</h1><pre class="source lang-java linenums">package com.nasa.simulador.physics;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.orekit.bodies.CelestialBody;
+import org.orekit.bodies.OneAxisEllipsoid;
+import org.orekit.propagation.SpacecraftState;
+import org.orekit.propagation.sampling.OrekitFixedStepHandler;
+import org.orekit.time.AbsoluteDate;
+
+/**
+ * Captura la trayectoria de la nave en intervalos regulares.
+ */
+public final class TrajectoryCollector
+        implements OrekitFixedStepHandler {
+
+    private static final double DATE_TOLERANCE_S = 1.0e-6;
+
+    private final AbsoluteDate trajectoryStartDate;
+    private final OneAxisEllipsoid earth;
+    private final CelestialBody moon;
+    private final List&lt;TrajectoryPoint&gt; points;
+
+    /**
+     * Construye el recolector de trayectoria.
+     *
+     * @param trajectoryStartDate fecha de inicio de la TLI
+     * @param earth modelo terrestre
+     * @param moon cuerpo celeste lunar
+     */
+    public TrajectoryCollector(
+            AbsoluteDate trajectoryStartDate,
+            OneAxisEllipsoid earth,
+            CelestialBody moon
+<span class="fc" id="L36">    ) {</span>
+
+<span class="fc" id="L38">        this.trajectoryStartDate = trajectoryStartDate;</span>
+<span class="fc" id="L39">        this.earth = earth;</span>
+<span class="fc" id="L40">        this.moon = moon;</span>
+<span class="fc" id="L41">        this.points = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Limpia los datos antes de iniciar una propagación.
+     */
+    @Override
+    public void init(
+            SpacecraftState initialState,
+            AbsoluteDate targetDate,
+            double step
+    ) {
+
+<span class="fc" id="L54">        points.clear();</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Recibe los estados interpolados a paso fijo.
+     */
+    @Override
+    public void handleStep(
+            SpacecraftState currentState
+    ) {
+
+<span class="fc" id="L65">        addStateIfApplicable(currentState);</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Agrega también el estado final de la propagación.
+     */
+    @Override
+    public void finish(
+            SpacecraftState finalState
+    ) {
+
+<span class="fc" id="L76">        addStateIfApplicable(finalState);</span>
+<span class="fc" id="L77">    }</span>
+
+    private void addStateIfApplicable(
+            SpacecraftState state
+    ) {
+
+<span class="fc" id="L83">        double elapsed =</span>
+<span class="fc" id="L84">                state.getDate()</span>
+<span class="fc" id="L85">                        .durationFrom(trajectoryStartDate);</span>
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (elapsed &lt; -DATE_TOLERANCE_S) {</span>
+<span class="fc" id="L88">            return;</span>
+        }
+
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (!points.isEmpty()) {</span>
+
+<span class="fc" id="L93">            TrajectoryPoint lastPoint =</span>
+<span class="fc" id="L94">                    points.get(points.size() - 1);</span>
+
+<span class="fc" id="L96">            double difference =</span>
+<span class="fc" id="L97">                    Math.abs(</span>
+<span class="fc" id="L98">                            state.getDate().durationFrom(</span>
+<span class="fc" id="L99">                                    lastPoint.getDate()</span>
+                            )
+                    );
+
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">            if (difference &lt; DATE_TOLERANCE_S) {</span>
+<span class="nc" id="L104">                return;</span>
+            }
+        }
+
+<span class="fc" id="L108">        points.add(</span>
+<span class="fc" id="L109">                TrajectoryPoint.fromState(</span>
+                        state,
+                        trajectoryStartDate,
+                        earth,
+                        moon
+                )
+        );
+<span class="fc" id="L116">    }</span>
+
+    /**
+     * Obtiene una copia inmutable de la trayectoria.
+     *
+     * @return puntos capturados
+     */
+    public List&lt;TrajectoryPoint&gt; getPoints() {
+<span class="fc" id="L124">        return List.copyOf(points);</span>
+    }
+
+    /**
+     * Obtiene la cantidad de puntos capturados.
+     *
+     * @return número de puntos
+     */
+    public int size() {
+<span class="nc" id="L133">        return points.size();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
