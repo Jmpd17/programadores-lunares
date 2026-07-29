@@ -1,0 +1,26 @@
+# Evidencias – Entregable 5
+
+## Integrante
+
+John Mario Ventura Contreras
+
+## Rol
+
+CAPCOM
+
+## Actividades realizadas
+
+- Desarrollo de la prueba de telemetría.
+- Desarrollo de la prueba de validación de parámetros.
+- Desarrollo de la prueba de cambio de trayectoria.
+- Creación y envío del Pull Request.
+- Integración de las pruebas al repositorio principal.
+- Verificación pendiente de `mvn clean test`.
+- Verificación pendiente del reporte Surefire.
+
+## Evidencias pendientes
+
+- Captura del Pull Request integrado.
+- Captura de las pruebas en `master`.
+- Captura de `BUILD SUCCESS`.
+- Captura del reporte Surefire.
