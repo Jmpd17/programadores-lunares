@@ -37,10 +37,10 @@ Esta estrategia facilita la detección temprana de errores, mejora la mantenibil
 | testTrajectoryGeneration() | OAM-5 | Verifica que la trayectoria generada contenga al menos 500 puntos. | Unitaria |
 | testLunarPeriapsisDetection() | OAM-6 | Comprueba la detección del periapsis durante el sobrevuelo lunar. | Unitaria |
 | testReentryDetection() | OAM-7 | Verifica la detección de la interfaz de reentrada alrededor de 120 km. | Unitaria |
-| testTelemetryModel() | UI-2 | Comprueba el cálculo correcto de la telemetría de la nave. | Unitaria |
-| testParameterValidation() | UI-3 | Verifica la validación de parámetros de entrada y valores límite. | Unitaria |
-| testTrajectoryChange() | UI-4 | Comprueba que diferentes parámetros produzcan trayectorias distintas. | Unitaria |
-| CompleteMissionIT | Integración | Ejecuta la simulación completa desde la órbita inicial hasta la reentrada. | Integración |
+| testTelemetryModel() (Pendiente de implementación) | UI-2 | Comprueba el cálculo correcto de la telemetría de la nave. | Unitaria |
+| testParameterValidation() (Pendiente de implementación) | UI-3 | Verifica la validación de parámetros de entrada y valores límite. | Unitaria |
+| testTrajectoryChange() (Pendiente de implementación) | UI-4 | Comprueba que diferentes parámetros produzcan trayectorias distintas. | Unitaria |
+| ArtemisMissionSimulationIntegrationTest.completeMissionPipelineProducesLunarFlybyAndReentry() | Integración | Ejecuta la simulación completa desde la órbita inicial hasta la reentrada. | Integración |
 
 La matriz de trazabilidad permite identificar claramente qué prueba verifica cada requisito funcional definido para el proyecto, garantizando la cobertura de los requisitos establecidos.
 
@@ -87,7 +87,10 @@ Las pruebas fueron ejecutadas utilizando Maven junto con JUnit 5, Mockito, Suref
 
 El informe de cobertura generado mediante JaCoCo evidencia el nivel de cobertura alcanzado por las pruebas implementadas. Las áreas con mayor cobertura corresponden a la lógica de mecánica orbital, propagación y validación de parámetros, mientras que los componentes gráficos asociados a JavaFX presentan una cobertura menor debido a que son evaluados mediante pruebas de aceptación.
 
-> **Nota:** Actualizar este apartado con el porcentaje final de cobertura obtenido en JaCoCo antes de la entrega.
+> **Cobertura (JaCoCo):**
+> - Cobertura de instrucciones: **89 %**
+> - Cobertura de ramas: **67 %**
+> - Clases cubiertas: **15/15**
 
 ---
 
