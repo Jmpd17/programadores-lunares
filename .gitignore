@@ -4,3 +4,4 @@ target/
 .eclipse/
 *.iml
 orekit-data/
+*.backup-E5

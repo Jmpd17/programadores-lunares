@@ -9,51 +9,67 @@ import org.orekit.time.AbsoluteDate;
 import org.orekit.time.TimeScalesFactory;
 
 /**
- * Construye el estado orbital inicial de la misión.
+ * Construye la órbita circular de estacionamiento de la misión.
  */
 public final class ParkingOrbitFactory {
 
     private ParkingOrbitFactory() {
-        // Evita la creación de instancias.
+        // Evita crear instancias.
     }
 
     /**
-     * Crea una órbita circular de estacionamiento a 185 km.
+     * Crea la órbita predeterminada de 185 km.
      *
-     * @return órbita inicial de la misión
+     * @return órbita inicial predeterminada
      */
     public static Orbit createDefaultOrbit() {
-
-        Frame inertialFrame = FramesFactory.getGCRF();
-
-        AbsoluteDate initialDate = new AbsoluteDate(
-                2026,
-                1,
-                1,
-                0,
-                0,
-                0.0,
-                TimeScalesFactory.getUTC()
+        return createOrbit(
+                MissionParameters.PARKING_ALTITUDE_M
+                        / MissionParameters.KM
         );
+    }
 
-        /*
-         * En una órbita circular, el semieje mayor equivale
-         * al radio terrestre más la altitud orbital.
-         */
+    /**
+     * Crea una órbita circular con altitud configurable.
+     *
+     * @param altitudeKm altitud sobre la Tierra en kilómetros
+     * @return órbita inicial de estacionamiento
+     */
+    public static Orbit createOrbit(double altitudeKm) {
+
+        if (!Double.isFinite(altitudeKm)
+                || altitudeKm <= 120.0) {
+
+            throw new IllegalArgumentException(
+                    "La altitud inicial debe ser mayor de 120 km."
+            );
+        }
+
+        Frame inertialFrame =
+                FramesFactory.getGCRF();
+
+        AbsoluteDate initialDate =
+                new AbsoluteDate(
+                        2026,
+                        1,
+                        1,
+                        0,
+                        0,
+                        0.0,
+                        TimeScalesFactory.getUTC()
+                );
+
         double semiMajorAxis =
                 MissionParameters.EARTH_RADIUS_M
-                        + MissionParameters.PARKING_ALTITUDE_M;
-
-        double rightAscensionAscendingNode = 0.0;
-        double latitudeArgument = 0.0;
+                        + altitudeKm * MissionParameters.KM;
 
         return new CircularOrbit(
                 semiMajorAxis,
                 MissionParameters.PARKING_EXCENTRICITY_X,
                 MissionParameters.PARKING_EXCENTRICITY_Y,
                 MissionParameters.PARKING_INCLINATION_RAD,
-                rightAscensionAscendingNode,
-                latitudeArgument,
+                0.0,
+                0.0,
                 PositionAngleType.TRUE,
                 inertialFrame,
                 initialDate,

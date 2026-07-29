@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrajectoryPoint.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Simulador de Misión Lunar</a> &gt; <a href="index.source.html" class="el_package">com.nasa.simulador.physics</a> &gt; <span class="el_source">TrajectoryPoint.java</span></div><h1>TrajectoryPoint.java</h1><pre class="source lang-java linenums">package com.nasa.simulador.physics;
+
+import org.hipparchus.geometry.euclidean.threed.Vector3D;
+import org.orekit.bodies.CelestialBody;
+import org.orekit.bodies.GeodeticPoint;
+import org.orekit.bodies.OneAxisEllipsoid;
+import org.orekit.propagation.SpacecraftState;
+import org.orekit.time.AbsoluteDate;
+
+/**
+ * Representa una muestra completa de la trayectoria.
+ *
+ * &lt;p&gt;Contiene los datos que consume la interfaz JavaFX para
+ * dibujar la nave, mover la Luna y actualizar la telemetría.&lt;/p&gt;
+ */
+public final class TrajectoryPoint {
+
+    private final AbsoluteDate date;
+    private final double elapsedSeconds;
+    private final Vector3D positionM;
+    private final Vector3D velocityMps;
+    private final Vector3D moonPositionM;
+    private final double earthAltitudeM;
+    private final double moonDistanceM;
+    private final double speedMps;
+    private final double massKg;
+
+    private TrajectoryPoint(
+            AbsoluteDate date,
+            double elapsedSeconds,
+            Vector3D positionM,
+            Vector3D velocityMps,
+            Vector3D moonPositionM,
+            double earthAltitudeM,
+            double moonDistanceM,
+            double speedMps,
+            double massKg
+<span class="fc" id="L38">    ) {</span>
+
+<span class="fc" id="L40">        this.date = date;</span>
+<span class="fc" id="L41">        this.elapsedSeconds = elapsedSeconds;</span>
+<span class="fc" id="L42">        this.positionM = positionM;</span>
+<span class="fc" id="L43">        this.velocityMps = velocityMps;</span>
+<span class="fc" id="L44">        this.moonPositionM = moonPositionM;</span>
+<span class="fc" id="L45">        this.earthAltitudeM = earthAltitudeM;</span>
+<span class="fc" id="L46">        this.moonDistanceM = moonDistanceM;</span>
+<span class="fc" id="L47">        this.speedMps = speedMps;</span>
+<span class="fc" id="L48">        this.massKg = massKg;</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Convierte un estado de Orekit en un punto de trayectoria.
+     *
+     * @param state estado actual de la nave
+     * @param startDate fecha inicial de la trayectoria
+     * @param earth modelo geométrico terrestre
+     * @param moon cuerpo celeste lunar
+     * @return punto de trayectoria para la interfaz
+     */
+    public static TrajectoryPoint fromState(
+            SpacecraftState state,
+            AbsoluteDate startDate,
+            OneAxisEllipsoid earth,
+            CelestialBody moon
+    ) {
+
+<span class="fc" id="L67">        Vector3D position = state.getPosition();</span>
+<span class="fc" id="L68">        Vector3D velocity = state.getVelocity();</span>
+
+<span class="fc" id="L70">        GeodeticPoint geodeticPoint =</span>
+<span class="fc" id="L71">                earth.transform(</span>
+                        position,
+<span class="fc" id="L73">                        state.getFrame(),</span>
+<span class="fc" id="L74">                        state.getDate()</span>
+                );
+
+<span class="fc" id="L77">        Vector3D moonPosition =</span>
+<span class="fc" id="L78">                moon.getPVCoordinates(</span>
+<span class="fc" id="L79">                        state.getDate(),</span>
+<span class="fc" id="L80">                        state.getFrame()</span>
+<span class="fc" id="L81">                ).getPosition();</span>
+
+<span class="fc" id="L83">        double moonDistance =</span>
+<span class="fc" id="L84">                Vector3D.distance(</span>
+                        position,
+                        moonPosition
+                );
+
+<span class="fc" id="L89">        return new TrajectoryPoint(</span>
+<span class="fc" id="L90">                state.getDate(),</span>
+<span class="fc" id="L91">                state.getDate().durationFrom(startDate),</span>
+                position,
+                velocity,
+                moonPosition,
+<span class="fc" id="L95">                geodeticPoint.getAltitude(),</span>
+                moonDistance,
+<span class="fc" id="L97">                velocity.getNorm(),</span>
+<span class="fc" id="L98">                state.getMass()</span>
+        );
+    }
+
+    public AbsoluteDate getDate() {
+<span class="fc" id="L103">        return date;</span>
+    }
+
+    public double getElapsedSeconds() {
+<span class="fc" id="L107">        return elapsedSeconds;</span>
+    }
+
+    public Vector3D getPositionM() {
+<span class="nc" id="L111">        return positionM;</span>
+    }
+
+    public Vector3D getVelocityMps() {
+<span class="nc" id="L115">        return velocityMps;</span>
+    }
+
+    public Vector3D getMoonPositionM() {
+<span class="nc" id="L119">        return moonPositionM;</span>
+    }
+
+    public double getEarthAltitudeM() {
+<span class="fc" id="L123">        return earthAltitudeM;</span>
+    }
+
+    public double getMoonDistanceM() {
+<span class="fc" id="L127">        return moonDistanceM;</span>
+    }
+
+    public double getSpeedMps() {
+<span class="fc" id="L131">        return speedMps;</span>
+    }
+
+    public double getMassKg() {
+<span class="fc" id="L135">        return massKg;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

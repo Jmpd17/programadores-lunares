@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EarthModelFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Simulador de Misión Lunar</a> &gt; <a href="index.source.html" class="el_package">com.nasa.simulador.physics</a> &gt; <span class="el_source">EarthModelFactory.java</span></div><h1>EarthModelFactory.java</h1><pre class="source lang-java linenums">package com.nasa.simulador.physics;
+
+import org.orekit.bodies.OneAxisEllipsoid;
+import org.orekit.frames.FramesFactory;
+import org.orekit.utils.IERSConventions;
+
+/**
+ * Construye el modelo geométrico terrestre utilizado
+ * por la telemetría y los detectores de eventos.
+ */
+public final class EarthModelFactory {
+
+    private EarthModelFactory() {
+        // Evita crear instancias.
+    }
+
+    /**
+     * Crea un elipsoide terrestre WGS84.
+     *
+     * @return modelo terrestre WGS84
+     */
+    public static OneAxisEllipsoid createWgs84Earth() {
+
+<span class="fc" id="L24">        return new OneAxisEllipsoid(</span>
+                MissionParameters.EARTH_RADIUS_M,
+                MissionParameters.EARTH_FLATTENING,
+<span class="fc" id="L27">                FramesFactory.getITRF(</span>
+                        IERSConventions.IERS_2010,
+                        false
+                )
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

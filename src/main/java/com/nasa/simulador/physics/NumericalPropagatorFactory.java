@@ -9,7 +9,7 @@ import org.orekit.propagation.ToleranceProvider;
 import org.orekit.propagation.numerical.NumericalPropagator;
 
 /**
- * Construye y configura el propagador numérico de la misión.
+ * Construye el propagador numérico de la misión.
  */
 public final class NumericalPropagatorFactory {
 
@@ -18,67 +18,85 @@ public final class NumericalPropagatorFactory {
     }
 
     /**
-     * Crea un propagador numérico con los modelos de fuerza
-     * requeridos para el Entregable 4.
+     * Crea un propagador mostrando información.
      *
-     * @param initialOrbit órbita inicial de estacionamiento
-     * @return propagador numérico configurado
+     * @param initialOrbit órbita inicial
+     * @return propagador configurado
      */
     public static NumericalPropagator create(
             Orbit initialOrbit
     ) {
 
-        System.out.println();
-        System.out.println(
-                "[INFO] Creando NumericalPropagator..."
+        return createInternal(
+                initialOrbit,
+                true
         );
+    }
 
-        /*
-         * Se calculan tolerancias apropiadas para propagación
-         * en coordenadas cartesianas.
-         */
+    /**
+     * Crea un propagador sin imprimir mensajes.
+     *
+     * <p>Se utiliza durante la búsqueda automática
+     * de parámetros para evitar llenar la consola.</p>
+     *
+     * @param initialOrbit órbita inicial
+     * @return propagador configurado
+     */
+    public static NumericalPropagator createQuiet(
+            Orbit initialOrbit
+    ) {
+
+        return createInternal(
+                initialOrbit,
+                false
+        );
+    }
+
+    private static NumericalPropagator createInternal(
+            Orbit initialOrbit,
+            boolean verbose
+    ) {
+
+        if (verbose) {
+            System.out.println();
+            System.out.println(
+                    "[INFO] Creando NumericalPropagator..."
+            );
+        }
+
         double[][] tolerances =
                 ToleranceProvider
                         .getDefaultToleranceProvider(
-                                MissionParameters.POSITION_TOLERANCE_M
+                                MissionParameters
+                                        .POSITION_TOLERANCE_M
                         )
                         .getTolerances(
                                 initialOrbit,
                                 OrbitType.CARTESIAN
                         );
 
-        /*
-         * Integrador adaptativo Dormand-Prince 8(5,3).
-         */
         AdaptiveStepsizeIntegrator integrator =
                 new DormandPrince853Integrator(
-                        MissionParameters.INTEGRATOR_MIN_STEP_S,
-                        MissionParameters.INTEGRATOR_MAX_STEP_S,
+                        MissionParameters
+                                .INTEGRATOR_MIN_STEP_S,
+                        MissionParameters
+                                .INTEGRATOR_MAX_STEP_S,
                         tolerances[0],
                         tolerances[1]
                 );
 
         integrator.setInitialStepSize(
-                MissionParameters.INTEGRATOR_INITIAL_STEP_S
+                MissionParameters
+                        .INTEGRATOR_INITIAL_STEP_S
         );
 
         NumericalPropagator propagator =
                 new NumericalPropagator(integrator);
 
-        /*
-         * La integración se realizará usando posición
-         * y velocidad cartesianas.
-         */
         propagator.setOrbitType(
                 OrbitType.CARTESIAN
         );
 
-        /*
-         * Estado inicial con masa provisional.
-         *
-         * Se usa withMass porque el constructor Orbit + masa
-         * está obsoleto desde Orekit 13.
-         */
         SpacecraftState initialState =
                 new SpacecraftState(initialOrbit)
                         .withMass(
@@ -86,24 +104,22 @@ public final class NumericalPropagatorFactory {
                                         .INITIAL_SPACECRAFT_MASS_KG
                         );
 
-        propagator.setInitialState(initialState);
-
-        /*
-         * Gravedad terrestre 8x8, Luna y Sol.
-         */
-        ForceModelFactory.addRequiredForceModels(
-                propagator
+        propagator.setInitialState(
+                initialState
         );
 
-        /*
-         * Evita que el propagador reemplace automáticamente
-         * su estado inicial al terminar una propagación.
-         */
+        ForceModelFactory.addRequiredForceModels(
+                propagator,
+                verbose
+        );
+
         propagator.setResetAtEnd(false);
 
-        System.out.println(
-                "[SUCCESS] NumericalPropagator configurado."
-        );
+        if (verbose) {
+            System.out.println(
+                    "[SUCCESS] NumericalPropagator configurado."
+            );
+        }
 
         return propagator;
     }
