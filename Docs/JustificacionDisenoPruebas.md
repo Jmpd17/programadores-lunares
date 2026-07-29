@@ -18,7 +18,7 @@ El propósito de este documento es justificar el diseño de las pruebas implemen
 
 La estrategia de pruebas adoptada divide la validación del sistema en pruebas unitarias y pruebas de integración.
 
-Las pruebas unitarias verifican de manera aislada el comportamiento de los módulos relacionados con la mecánica orbital, la propagación de la trayectoria y los modelos de la interfaz de usuario. Estas pruebas fueron implementadas utilizando **JUnit 5** y **Mockito**, permitiendo validar la lógica del sistema de forma independiente y reproducible.
+Las pruebas unitarias verifican de manera aislada el comportamiento de los módulos relacionados con la mecánica orbital, la propagación de la trayectoria y los modelos de la interfaz de usuario. Estas pruebas fueron implementadas utilizando **JUnit 5**,  permitiendo validar la lógica del sistema de forma independiente y reproducible.
 
 Las pruebas de integración verifican el funcionamiento conjunto de todos los módulos del simulador, comprobando que la información producida por el motor físico sea correctamente utilizada por la interfaz y que el flujo completo de la simulación funcione como fue diseñado.
 
